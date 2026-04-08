@@ -6,185 +6,478 @@
   <title>Tableau Dashboard Directory</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f6f8; color: #1a1a2e; padding: 24px 20px; min-height: 100vh; }
-    .top-bar { display: flex; align-items: center; margin-bottom: 20px; gap: 10px; }
-    .dir-header { display: flex; align-items: center; gap: 10px; flex: 1; }
-    .dir-title { font-size: 11px; font-weight: 600; color: #6b7280; letter-spacing: 0.1em; text-transform: uppercase; }
-    .edit-toggle-btn { font-size: 11.5px; padding: 5px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; font-weight: 500; }
-    .edit-toggle-btn:hover { background: #f3f4f6; }
-    .edit-toggle-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
-    .export-btn { font-size: 11.5px; padding: 5px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; font-weight: 500; display: none; }
-    .export-btn.show { display: inline-block; }
-    .export-btn:hover { background: #f3f4f6; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
-    .modal-overlay.show { display: flex; }
-    .modal { background: #fff; border-radius: 12px; padding: 28px 24px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
-    .modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: #1a1a2e; }
-    .modal p { font-size: 12.5px; color: #6b7280; margin-bottom: 16px; }
-    .modal input[type="password"] { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; margin-bottom: 10px; outline: none; font-family: inherit; }
-    .modal input[type="password"]:focus { border-color: #1a1a2e; }
-    .modal-error { font-size: 12px; color: #c0392b; margin-bottom: 8px; display: none; }
-    .modal-btns { display: flex; gap: 8px; }
-    .modal-btns button { flex: 1; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #d1d5db; background: #fff; color: #374151; }
-    .modal-btns button.primary { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
-    .edit-banner { display: none; background: #1a1a2e; color: #fff; font-size: 12px; padding: 7px 14px; border-radius: 8px; margin-bottom: 14px; align-items: center; gap: 8px; }
+
+    :root {
+      --super-blue: #1D6BFF;
+      --super-blue-dark: #1455CC;
+      --super-blue-light: #E8F0FF;
+      --blueberry-110: #002049;
+      --agave-30: #82F2FE;
+      --agave-20: #C3F5FE;
+      --agave-10: #EAFEFF;
+      --wintermint-100: #EFF4F8;
+      --tofu-100: #F4F5F0;
+      --white: #FFFFFF;
+      --gray-mid: #6B7280;
+      --gray-light: #E2E5EA;
+      --gray-lighter: #F4F5F7;
+    }
+
+    body {
+      font-family: 'Avenir Next', 'Segoe UI', Arial, sans-serif;
+      background: var(--white);
+      color: #1A1D23;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .folder-list { flex: 1; }
+
+    /* Folder */
+    .folder {
+      border: 1px solid var(--gray-light);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: visible;
+      background: var(--white);
+      transition: box-shadow 0.15s;
+    }
+    .folder:hover { box-shadow: 0 2px 12px rgba(29,107,255,0.10); }
+
+    .folder-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px;
+      cursor: pointer; background: var(--white);
+      user-select: none; border-radius: 10px;
+      transition: background 0.12s;
+    }
+    .folder-header:hover { background: var(--super-blue-light); }
+
+    .folder-icon {
+      width: 18px; height: 14px;
+      border-radius: 0 4px 4px 4px;
+      flex-shrink: 0; position: relative;
+    }
+    .folder-icon::before {
+      content: ''; position: absolute;
+      top: -5px; left: 0; width: 7px; height: 5px;
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* Folder colors — exact Intuit palette tokens */
+    .f-exec .folder-icon         { background: #002049; }
+    .f-exec .folder-icon::before { background: #002049; }
+
+    .f-fall .folder-icon         { background: #82F2FE; }
+    .f-fall .folder-icon::before { background: #82F2FE; }
+
+    .f-plan .folder-icon         { background: #C3F5FE; }
+    .f-plan .folder-icon::before { background: #C3F5FE; }
+
+    .f-rec  .folder-icon         { background: #EFF4F8; border: 1px solid #D0DCE8; }
+    .f-rec  .folder-icon::before { background: #EFF4F8; }
+
+    /* Dot colors to match folder */
+    .f-exec .dash-dot { background: #002049; }
+    .f-fall .dash-dot { background: #82F2FE; border: 1px solid #50D8EE; }
+    .f-plan .dash-dot { background: #C3F5FE; border: 1px solid #82D8EE; }
+    .f-rec  .dash-dot { background: #EFF4F8; border: 1px solid #C0CEDB; }
+
+    .folder-name { font-size: 13.5px; font-weight: 600; color: var(--blueberry-110); flex: 1; }
+
+    .folder-count {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--super-blue-light);
+      color: var(--super-blue);
+    }
+
+    .chevron {
+      font-size: 9px; color: var(--gray-mid);
+      transition: transform 0.2s ease;
+      display: inline-block; margin-left: 4px;
+    }
+    .chevron.open { transform: rotate(90deg); }
+
+    .folder-body {
+      border-top: 1px solid var(--gray-lighter);
+      display: none; border-radius: 0 0 10px 10px; overflow: hidden;
+    }
+    .folder-body.open { display: block; }
+
+    /* Dashboard rows */
+    .dash-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px 8px 40px;
+      border-bottom: 1px solid var(--gray-lighter);
+      transition: background 0.1s; position: relative;
+    }
+    .dash-item:last-child { border-bottom: none; }
+    .dash-item:hover { background: var(--super-blue-light); }
+
+    .dash-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    .dash-name { font-size: 13px; color: #1A1D23; flex: 1; }
+
+    .dash-name-input {
+      font-size: 13px; color: #1A1D23; flex: 1;
+      border: 1.5px solid var(--gray-light); border-radius: 6px;
+      padding: 3px 7px; outline: none; font-family: inherit;
+      background: var(--white); display: none;
+    }
+    .dash-name-input:focus { border-color: var(--super-blue); }
+
+    .dash-tag {
+      font-size: 10.5px; padding: 2px 8px;
+      border-radius: 20px; font-weight: 600;
+    }
+    .tag-live     { background: var(--agave-10); color: #006B7A; }
+    .tag-draft    { background: #FFF3E0; color: #B85C00; }
+    .tag-archived { background: var(--tofu-100); color: var(--gray-mid); }
+    .tag-review   { background: var(--super-blue-light); color: var(--super-blue-dark); }
+
+    .status-select {
+      font-size: 11px; padding: 2px 5px; border-radius: 5px;
+      border: 1px solid var(--gray-light); background: var(--white);
+      display: none; cursor: pointer; font-family: inherit;
+    }
+
+    .delete-btn {
+      background: none; border: none; color: var(--gray-light);
+      cursor: pointer; font-size: 15px; line-height: 1;
+      padding: 0 2px; display: none; transition: color 0.12s;
+    }
+    .delete-btn:hover { color: #D93025; }
+
+    /* Add row */
+    .add-dash-row {
+      display: none; align-items: center; gap: 8px;
+      padding: 8px 14px 8px 40px;
+      border-top: 1px dashed var(--gray-light);
+      background: var(--wintermint-100);
+    }
+    .add-dash-row.show { display: flex; }
+    .add-dash-input {
+      font-size: 13px; color: #1A1D23; flex: 1;
+      border: 1.5px solid var(--gray-light); border-radius: 6px;
+      padding: 4px 8px; outline: none; font-family: inherit; background: var(--white);
+    }
+    .add-dash-input:focus { border-color: var(--super-blue); }
+    .add-dash-btn {
+      font-size: 12px; padding: 4px 14px; border-radius: 20px;
+      border: none; background: var(--super-blue); color: var(--white);
+      cursor: pointer; font-weight: 600; white-space: nowrap; font-family: inherit;
+    }
+    .add-dash-btn:hover { background: var(--super-blue-dark); }
+
+    /* Edit banner */
+    .edit-banner {
+      display: none;
+      background: var(--blueberry-110);
+      color: var(--white); font-size: 12px;
+      padding: 8px 14px; border-radius: 8px;
+      margin-bottom: 14px;
+      align-items: center; gap: 8px;
+    }
     .edit-banner.show { display: flex; }
     .edit-banner span { flex: 1; }
-    .save-indicator { font-size: 11px; color: #9ca3af; transition: color 0.3s; }
-    .save-indicator.saved { color: #6ee7b7; }
-    .change-pw { font-size: 11px; color: #9ca3af; text-decoration: underline; cursor: pointer; }
-    .change-pw:hover { color: #e2e5ea; }
-    .folder { border: 1px solid #e2e5ea; border-radius: 10px; margin-bottom: 8px; background: #fff; transition: box-shadow 0.15s; }
-    .folder:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .folder-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer; border-radius: 10px; user-select: none; transition: background 0.12s; }
-    .folder-header:hover { background: #f9fafb; }
-    .folder-icon { width: 18px; height: 14px; border-radius: 0 4px 4px 4px; flex-shrink: 0; position: relative; }
-    .folder-icon::before { content: ''; position: absolute; top: -5px; left: 0; width: 7px; height: 5px; border-radius: 2px 2px 0 0; }
-    .f-exec .folder-icon, .f-exec .folder-icon::before { background: #bdd7f5; }
-    .f-plan .folder-icon, .f-plan .folder-icon::before { background: #a0e2cd; }
-    .f-fall .folder-icon, .f-fall .folder-icon::before { background: #fac97e; }
-    .f-rec  .folder-icon, .f-rec  .folder-icon::before { background: #f5c2d3; }
-    .f-arch .folder-icon, .f-arch .folder-icon::before { background: #d4d2c9; }
-    .folder-name { font-size: 13.5px; font-weight: 600; color: #1a1a2e; flex: 1; }
-    .folder-meta { font-size: 11.5px; color: #9ca3af; }
-    .chevron { font-size: 9px; color: #9ca3af; transition: transform 0.2s; display: inline-block; }
-    .chevron.open { transform: rotate(90deg); }
-    .folder-body { border-top: 1px solid #f0f1f3; display: none; border-radius: 0 0 10px 10px; overflow: hidden; }
-    .folder-body.open { display: block; }
-    .dash-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 40px; border-bottom: 1px solid #f5f6f8; transition: background 0.1s; }
-    .dash-item:last-child { border-bottom: none; }
-    .dash-item:hover { background: #fafbfc; }
-    .dash-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .f-exec .dash-dot { background: #3a8fdf; }
-    .f-plan .dash-dot { background: #1da87a; }
-    .f-fall .dash-dot { background: #c27d18; }
-    .f-rec  .dash-dot { background: #d4537e; }
-    .f-arch .dash-dot { background: #9ca3af; }
-    .dash-name { font-size: 13px; color: #374151; flex: 1; }
-    .dash-name-input { font-size: 13px; color: #374151; flex: 1; border: 1px solid #d1d5db; border-radius: 5px; padding: 3px 7px; outline: none; font-family: inherit; background: #fff; display: none; }
-    .dash-name-input:focus { border-color: #1a1a2e; }
-    .dash-tag { font-size: 10.5px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
-    .tag-live     { background: #ecf8ee; color: #2d7a3a; }
-    .tag-draft    { background: #fff4e0; color: #9a6200; }
-    .tag-archived { background: #f1f2f4; color: #6b7280; }
-    .tag-review   { background: #e8f2fd; color: #1a62a8; }
-    .status-select { font-size: 11px; padding: 2px 5px; border-radius: 5px; border: 1px solid #d1d5db; background: #fff; display: none; cursor: pointer; font-family: inherit; }
-    .delete-btn { background: none; border: none; color: #d1d5db; cursor: pointer; font-size: 15px; padding: 0 2px; display: none; transition: color 0.12s; }
-    .delete-btn:hover { color: #e24b4a; }
-    .add-dash-row { display: none; align-items: center; gap: 8px; padding: 8px 14px 8px 40px; border-top: 1px dashed #e2e5ea; }
-    .add-dash-row.show { display: flex; }
-    .add-dash-input { font-size: 13px; color: #374151; flex: 1; border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 8px; outline: none; font-family: inherit; }
-    .add-dash-input:focus { border-color: #1a1a2e; }
-    .add-dash-btn { font-size: 12px; padding: 4px 10px; border-radius: 5px; border: 1px solid #1a1a2e; background: #1a1a2e; color: #fff; cursor: pointer; font-weight: 500; white-space: nowrap; }
-    .legend { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #9ca3af; }
-    .legend-dot { width: 8px; height: 8px; border-radius: 20px; }
+    .save-indicator { font-size: 11px; color: rgba(255,255,255,0.45); transition: color 0.3s; }
+    .save-indicator.saved { color: var(--agave-30); }
+
+    /* Bottom bar */
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--gray-lighter);
+    }
+
+    .dir-meta { font-size: 11px; color: var(--gray-mid); }
+
+    .edit-toggle-btn {
+      font-size: 11px; padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--gray-light);
+      background: var(--white); color: var(--gray-mid);
+      cursor: pointer; font-weight: 500;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .edit-toggle-btn:hover { border-color: var(--super-blue); color: var(--super-blue); }
+    .edit-toggle-btn.active { background: var(--super-blue); color: var(--white); border-color: var(--super-blue); }
+
+    .export-btn {
+      font-size: 11px; padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--gray-light);
+      background: var(--white); color: var(--gray-mid);
+      cursor: pointer; font-weight: 500;
+      font-family: inherit; transition: all 0.15s;
+      display: none;
+    }
+    .export-btn.show { display: inline-block; }
+    .export-btn:hover { border-color: var(--blueberry-110); color: var(--blueberry-110); }
   </style>
 </head>
 <body>
 
-<div class="modal-overlay" id="pwModal">
-  <div class="modal">
-    <h2 id="modalTitle">Enter edit password</h2>
-    <p id="modalDesc">Enter the password to unlock edit mode.</p>
-    <input type="password" id="pwInput" placeholder="Password" />
-    <div class="modal-error" id="pwError"></div>
-    <div class="modal-btns">
-      <button onclick="closeModal()">Cancel</button>
-      <button class="primary" onclick="submitPassword()">Unlock</button>
+  <!-- Edit banner -->
+  <div class="edit-banner" id="editBanner">
+    <span>Edit mode — rename, add, or remove dashboards.</span>
+    <span class="save-indicator" id="saveIndicator">Changes saved</span>
+  </div>
+
+  <!-- Folders -->
+  <div class="folder-list" id="folderList"></div>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <span class="dir-meta" id="totalMeta"></span>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button class="export-btn" id="exportBtn" onclick="exportFile()">Download updated file</button>
+      <button class="edit-toggle-btn" id="editBtn" onclick="handleEditToggle()">Edit</button>
     </div>
   </div>
-</div>
-
-<div class="top-bar">
-  <div class="dir-header">
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="8" width="24" height="18" rx="3" fill="#e2e5ea"/><path d="M2 11C2 9.34315 3.34315 8 5 8H12L14 5H23C24.6569 5 26 6.34315 26 8V11H2Z" fill="#c5cad3"/></svg>
-    <span class="dir-title">Tableau Dashboard Directory</span>
-  </div>
-  <button class="export-btn" id="exportBtn" onclick="exportFile()">Download updated file</button>
-  <button class="edit-toggle-btn" id="editBtn" onclick="handleEditToggle()">Edit</button>
-</div>
-
-<div class="edit-banner" id="editBanner">
-  <span>Edit mode — rename dashboards, change status, or add/remove entries. Changes save instantly.</span>
-  <span class="save-indicator" id="saveIndicator">Changes saved</span>
-  <span class="change-pw" onclick="openChangePw()">Change password</span>
-</div>
-
-<div id="folderList"></div>
-
-<div class="legend">
-  <div class="legend-item"><span class="legend-dot" style="background:#2d7a3a"></span>Live</div>
-  <div class="legend-item"><span class="legend-dot" style="background:#1a62a8"></span>In review</div>
-  <div class="legend-item"><span class="legend-dot" style="background:#9a6200"></span>Draft</div>
-  <div class="legend-item"><span class="legend-dot" style="background:#9ca3af"></span>Archived</div>
-</div>
 
 <script>
-const DEFAULT_DATA = {"folders":[{"id":"f-exec","label":"Executive","dashboards":[{"name":"Executive Summary","status":"live"},{"name":"Operating Report","status":"live"},{"name":"Year over Year Report","status":"live"}]},{"id":"f-plan","label":"Planning and Funnel","dashboards":[{"name":"Funnel Counts","status":"live"},{"name":"Location Health","status":"live"},{"name":"Retail Site Matching","status":"live"},{"name":"VOA RTS by Wave Date","status":"live"}]},{"id":"f-fall","label":"Fallout","dashboards":[{"name":"Candidate Fallout","status":"live"},{"name":"Disposition Report","status":"live"}]},{"id":"f-rec","label":"Recruiting","dashboards":[{"name":"Active VOAs and Hires Report","status":"live"},{"name":"Hireview Pending Report","status":"live"},{"name":"Hiring Decision Report","status":"live"},{"name":"Internal Transfers Report","status":"live"},{"name":"Local Start Date Report","status":"live"},{"name":"NYC Candidates","status":"live"},{"name":"Progress to Hiring","status":"live"},{"name":"QBL Credential Report","status":"live"},{"name":"Referral Dashboard","status":"live"},{"name":"Rostering Report","status":"live"},{"name":"Sourcing Team Dash","status":"live"},{"name":"TTL Canada Work Group","status":"live"}]},{"id":"f-arch","label":"Archive","dashboards":[]}]};
-const STATUS_LABELS  = {live:'Live',draft:'Draft',review:'In review',archived:'Archived'};
-const STATUS_CLASSES = {live:'tag-live',draft:'tag-draft',review:'tag-review',archived:'tag-archived'};
-const STORAGE_KEY='tableau_dir_v3', PW_KEY='tableau_dir_pw', DEFAULT_PW='admin123';
-let editMode=false, changingPw=false;
-let data=loadData();
+  const DEFAULT_DATA = {
+    folders: [
+      { id: 'f-exec', label: 'Executive', dashboards: [
+        { name: 'Executive Summary', status: 'live' },
+        { name: 'Operating Report', status: 'live' },
+        { name: 'Year over Year Report', status: 'live' }
+      ]},
+      { id: 'f-fall', label: 'Fallout', dashboards: [
+        { name: 'Candidate Fallout', status: 'live' },
+        { name: 'Disposition Report', status: 'live' }
+      ]},
+      { id: 'f-plan', label: 'Planning and Funnel', dashboards: [
+        { name: 'Funnel Counts', status: 'live' },
+        { name: 'Location Health', status: 'live' },
+        { name: 'Retail Site Matching', status: 'live' },
+        { name: 'VOA RTS by Wave Date', status: 'live' }
+      ]},
+      { id: 'f-rec', label: 'Recruiting', dashboards: [
+        { name: 'Active VOAs and Hires Report', status: 'live' },
+        { name: 'Hireview Pending Report', status: 'live' },
+        { name: 'Hiring Decision Report', status: 'live' },
+        { name: 'Internal Transfers Report', status: 'live' },
+        { name: 'Local Start Date Report', status: 'live' },
+        { name: 'NYC Candidates', status: 'live' },
+        { name: 'Progress to Hiring', status: 'live' },
+        { name: 'QBL Credential Report', status: 'live' },
+        { name: 'Referral Dashboard', status: 'live' },
+        { name: 'Rostering Report', status: 'live' },
+        { name: 'Sourcing Team Dash', status: 'live' },
+        { name: 'TTL Canada Work Group', status: 'live' }
+      ]}
+    ]
+  };
 
-function loadData(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT_DATA));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_DATA));}}
-function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));flashSaved();}
-function getPassword(){return localStorage.getItem(PW_KEY)||DEFAULT_PW;}
-function setPassword(pw){localStorage.setItem(PW_KEY,pw);}
-function flashSaved(){const el=document.getElementById('saveIndicator');el.textContent='Saved ✓';el.classList.add('saved');setTimeout(()=>{el.textContent='Changes saved';el.classList.remove('saved');},2000);}
+  const STATUS_LABELS  = { live: 'Live', draft: 'Draft', review: 'In review', archived: 'Archived' };
+  const STATUS_CLASSES = { live: 'tag-live', draft: 'tag-draft', review: 'tag-review', archived: 'tag-archived' };
 
-function handleEditToggle(){if(editMode){disableEditMode();return;}changingPw=false;document.getElementById('modalTitle').textContent='Enter edit password';document.getElementById('modalDesc').textContent='Enter the password to unlock edit mode.';document.getElementById('pwInput').value='';document.getElementById('pwError').style.display='none';document.getElementById('pwModal').classList.add('show');setTimeout(()=>document.getElementById('pwInput').focus(),80);}
-function openChangePw(){changingPw=true;document.getElementById('modalTitle').textContent='Set new password';document.getElementById('modalDesc').textContent='Enter a new password for edit mode.';document.getElementById('pwInput').value='';document.getElementById('pwError').style.display='none';document.getElementById('pwModal').classList.add('show');setTimeout(()=>document.getElementById('pwInput').focus(),80);}
-function closeModal(){document.getElementById('pwModal').classList.remove('show');document.getElementById('pwInput').value='';}
-function submitPassword(){const val=document.getElementById('pwInput').value,errEl=document.getElementById('pwError');if(changingPw){if(!val||val.length<4){errEl.textContent='Password must be at least 4 characters.';errEl.style.display='block';return;}setPassword(val);closeModal();return;}if(val===getPassword()){closeModal();enableEditMode();}else{errEl.textContent='Incorrect password, try again.';errEl.style.display='block';document.getElementById('pwInput').value='';document.getElementById('pwInput').focus();}}
-document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitPassword();if(e.key==='Escape')closeModal();});
+  const STORAGE_KEY = 'tableau_dir_data_v3';
 
-function enableEditMode(){editMode=true;document.getElementById('editBtn').textContent='Done';document.getElementById('editBtn').classList.add('active');document.getElementById('editBanner').classList.add('show');document.getElementById('exportBtn').classList.add('show');document.querySelectorAll('.dash-name').forEach(el=>el.style.display='none');document.querySelectorAll('.dash-name-input').forEach(el=>el.style.display='block');document.querySelectorAll('.dash-tag').forEach(el=>el.style.display='none');document.querySelectorAll('.status-select').forEach(el=>el.style.display='block');document.querySelectorAll('.delete-btn').forEach(el=>el.style.display='block');document.querySelectorAll('.add-dash-row').forEach(el=>el.classList.add('show'));}
-function disableEditMode(){editMode=false;document.getElementById('editBtn').textContent='Edit';document.getElementById('editBtn').classList.remove('active');document.getElementById('editBanner').classList.remove('show');document.getElementById('exportBtn').classList.remove('show');document.querySelectorAll('.dash-name').forEach(el=>el.style.display='block');document.querySelectorAll('.dash-name-input').forEach(el=>el.style.display='none');document.querySelectorAll('.dash-tag').forEach(el=>el.style.display='block');document.querySelectorAll('.status-select').forEach(el=>el.style.display='none');document.querySelectorAll('.delete-btn').forEach(el=>el.style.display='none');document.querySelectorAll('.add-dash-row').forEach(el=>el.classList.remove('show'));}
+  let editMode = false;
+  let data     = loadData();
 
-function exportFile(){const ds=JSON.stringify(data).replace(/`/g,'\\`'),pw=getPassword(),orig=document.documentElement.outerHTML,injected=orig.replace('const DEFAULT_DATA =',`try{localStorage.setItem('${STORAGE_KEY}',\`${ds}\`);localStorage.setItem('${PW_KEY}',\`${pw}\`);}catch(e){}\nconst DEFAULT_DATA =`),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([injected],{type:'text/html'}));a.download='index.html';a.click();}
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_DATA));
+    } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+  }
 
-function render(){
-  const container=document.getElementById('folderList');
-  container.innerHTML='';
-  data.folders.forEach((folder,fi)=>{
-    const folderEl=document.createElement('div');
-    folderEl.className=`folder ${folder.id}`;
-    const isOpen=folder.id!=='f-arch';
-    const header=document.createElement('div');
-    header.className='folder-header';
-    header.innerHTML=`<span class="folder-icon"></span><span class="folder-name">${folder.label}</span><span class="folder-meta">${folder.dashboards.length} dashboard${folder.dashboards.length!==1?'s':''}</span><span class="chevron ${isOpen?'open':''}">&#9654;</span>`;
-    const body=document.createElement('div');
-    body.className=`folder-body ${isOpen?'open':''}`;
-    header.addEventListener('click',()=>{body.classList.toggle('open');header.querySelector('.chevron').classList.toggle('open');});
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    flashSaved(); updateMeta();
+  }
 
-    folder.dashboards.forEach((dash,di)=>{
-      const row=document.createElement('div'); row.className='dash-item';
-      const dot=document.createElement('span'); dot.className='dash-dot';
-      const nameSpan=document.createElement('span'); nameSpan.className='dash-name'; nameSpan.textContent=dash.name; if(editMode)nameSpan.style.display='none';
-      const nameInput=document.createElement('input'); nameInput.type='text'; nameInput.className='dash-name-input'; nameInput.value=dash.name; nameInput.style.display=editMode?'block':'none';
-      nameInput.addEventListener('input',()=>{data.folders[fi].dashboards[di].name=nameInput.value;nameSpan.textContent=nameInput.value;saveData();});
-      const tag=document.createElement('span'); tag.className=`dash-tag ${STATUS_CLASSES[dash.status]}`; tag.textContent=STATUS_LABELS[dash.status]; if(editMode)tag.style.display='none';
-      const select=document.createElement('select'); select.className='status-select'; select.style.display=editMode?'block':'none';
-      ['live','review','draft','archived'].forEach(s=>{const opt=document.createElement('option');opt.value=s;opt.textContent=STATUS_LABELS[s];if(s===dash.status)opt.selected=true;select.appendChild(opt);});
-      select.addEventListener('change',()=>{data.folders[fi].dashboards[di].status=select.value;tag.className=`dash-tag ${STATUS_CLASSES[select.value]}`;tag.textContent=STATUS_LABELS[select.value];saveData();});
-      const delBtn=document.createElement('button'); delBtn.className='delete-btn'; delBtn.textContent='×'; delBtn.style.display=editMode?'block':'none';
-      delBtn.addEventListener('click',()=>{data.folders[fi].dashboards.splice(di,1);saveData();render();});
-      row.appendChild(dot);row.appendChild(nameSpan);row.appendChild(nameInput);row.appendChild(tag);row.appendChild(select);row.appendChild(delBtn);
-      body.appendChild(row);
+  function flashSaved() {
+    const el = document.getElementById('saveIndicator');
+    el.textContent = 'Saved ✓'; el.classList.add('saved');
+    setTimeout(() => { el.textContent = 'Changes saved'; el.classList.remove('saved'); }, 2000);
+  }
+
+  function updateMeta() {
+    const total = data.folders.reduce((sum, f) => sum + f.dashboards.length, 0);
+    document.getElementById('totalMeta').textContent = `${total} dashboards across ${data.folders.length} folders`;
+  }
+
+  function exportFile() {
+    const currentData = JSON.stringify(data);
+    let src = document.documentElement.outerHTML;
+    src = src.replace(
+      /const STORAGE_KEY[\s\S]*?let data\s*=\s*loadData\(\);/,
+      `const STORAGE_KEY = 'tableau_dir_data_v3';
+
+  let editMode = false;
+  let data     = ${currentData};
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(data));
+    } catch(e) { return JSON.parse(JSON.stringify(data)); }`
+    );
+    const blob = new Blob([src], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html'; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function handleEditToggle() {
+    editMode ? disableEditMode() : enableEditMode();
+  }
+
+  function enableEditMode() {
+    editMode = true;
+    document.getElementById('editBtn').textContent = 'Done';
+    document.getElementById('editBtn').classList.add('active');
+    document.getElementById('editBanner').classList.add('show');
+    document.getElementById('exportBtn').classList.add('show');
+    document.querySelectorAll('.dash-name').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.dash-name-input').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.dash-tag').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.status-select').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.add-dash-row').forEach(el => el.classList.add('show'));
+  }
+
+  function disableEditMode() {
+    editMode = false;
+    document.getElementById('editBtn').textContent = 'Edit';
+    document.getElementById('editBtn').classList.remove('active');
+    document.getElementById('editBanner').classList.remove('show');
+    document.getElementById('exportBtn').classList.remove('show');
+    document.querySelectorAll('.dash-name').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.dash-name-input').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.dash-tag').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.status-select').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.add-dash-row').forEach(el => el.classList.remove('show'));
+  }
+
+  function render() {
+    const container = document.getElementById('folderList');
+    container.innerHTML = '';
+    data.folders.forEach((folder, fi) => {
+      const folderEl = document.createElement('div');
+      folderEl.className = `folder ${folder.id}`;
+
+      const header = document.createElement('div');
+      header.className = 'folder-header';
+      header.innerHTML = `
+        <span class="folder-icon"></span>
+        <span class="folder-name">${folder.label}</span>
+        <span class="folder-count">${folder.dashboards.length}</span>
+        <span class="chevron open">&#9654;</span>
+      `;
+      header.addEventListener('click', () => {
+        body.classList.toggle('open');
+        header.querySelector('.chevron').classList.toggle('open');
+      });
+
+      const body = document.createElement('div');
+      body.className = 'folder-body open';
+
+      folder.dashboards.forEach((dash, di) => {
+        const row = document.createElement('div');
+        row.className = 'dash-item';
+
+        const dot = document.createElement('span');
+        dot.className = 'dash-dot';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'dash-name';
+        nameSpan.textContent = dash.name;
+        if (editMode) nameSpan.style.display = 'none';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'dash-name-input';
+        nameInput.value = dash.name;
+        nameInput.style.display = editMode ? 'block' : 'none';
+        nameInput.addEventListener('input', () => {
+          data.folders[fi].dashboards[di].name = nameInput.value;
+          nameSpan.textContent = nameInput.value;
+          saveData();
+        });
+
+        const tag = document.createElement('span');
+        tag.className = `dash-tag ${STATUS_CLASSES[dash.status]}`;
+        tag.textContent = STATUS_LABELS[dash.status];
+        if (editMode) tag.style.display = 'none';
+
+        const select = document.createElement('select');
+        select.className = 'status-select';
+        select.style.display = editMode ? 'block' : 'none';
+        ['live','review','draft','archived'].forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s; opt.textContent = STATUS_LABELS[s];
+          if (s === dash.status) opt.selected = true;
+          select.appendChild(opt);
+        });
+        select.addEventListener('change', () => {
+          data.folders[fi].dashboards[di].status = select.value;
+          tag.className = `dash-tag ${STATUS_CLASSES[select.value]}`;
+          tag.textContent = STATUS_LABELS[select.value];
+          saveData();
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = '×';
+        delBtn.title = 'Remove dashboard';
+        delBtn.style.display = editMode ? 'block' : 'none';
+        delBtn.addEventListener('click', () => {
+          data.folders[fi].dashboards.splice(di, 1);
+          saveData(); render();
+        });
+
+        row.appendChild(dot);
+        row.appendChild(nameSpan);
+        row.appendChild(nameInput);
+        row.appendChild(tag);
+        row.appendChild(select);
+        row.appendChild(delBtn);
+        body.appendChild(row);
+      });
+
+      const addRow = document.createElement('div');
+      addRow.className = `add-dash-row ${editMode ? 'show' : ''}`;
+      const addInput = document.createElement('input');
+      addInput.type = 'text';
+      addInput.className = 'add-dash-input';
+      addInput.placeholder = 'New dashboard name...';
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-dash-btn';
+      addBtn.textContent = '+ Add';
+      addBtn.addEventListener('click', () => {
+        const name = addInput.value.trim();
+        if (!name) return;
+        data.folders[fi].dashboards.push({ name, status: 'live' });
+        addInput.value = '';
+        saveData(); render();
+      });
+      addInput.addEventListener('keydown', e => { if (e.key === 'Enter') addBtn.click(); });
+      addRow.appendChild(addInput);
+      addRow.appendChild(addBtn);
+      body.appendChild(addRow);
+
+      folderEl.appendChild(header);
+      folderEl.appendChild(body);
+      container.appendChild(folderEl);
     });
+    updateMeta();
+  }
 
-    const addRow=document.createElement('div'); addRow.className=`add-dash-row ${editMode?'show':''}`;
-    const addInput=document.createElement('input'); addInput.type='text'; addInput.className='add-dash-input'; addInput.placeholder='New dashboard name...';
-    const addBtn=document.createElement('button'); addBtn.className='add-dash-btn'; addBtn.textContent='+ Add';
-    addBtn.addEventListener('click',()=>{const name=addInput.value.trim();if(!name)return;data.folders[fi].dashboards.push({name,status:'live'});addInput.value='';saveData();render();});
-    addInput.addEventListener('keydown',e=>{if(e.key==='Enter')addBtn.click();});
-    addRow.appendChild(addInput);addRow.appendChild(addBtn);body.appendChild(addRow);
-    folderEl.appendChild(header);folderEl.appendChild(body);container.appendChild(folderEl);
-  });
-}
-render();
+  render();
 </script>
 </body>
 </html>
