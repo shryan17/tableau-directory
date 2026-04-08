@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau Dashboard Directory</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f6f8;
+      color: #1a1a2e;
+      padding: 24px 20px;
+      min-height: 100vh;
+    }
+
+    .dir-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .dir-header-icon {
+      width: 28px;
+      height: 28px;
+    }
+
+    .dir-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .folder {
+      border: 1px solid #e2e5ea;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      background: #ffffff;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .folder:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+
+    .folder-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      cursor: pointer;
+      background: #ffffff;
+      user-select: none;
+      transition: background 0.12s;
+    }
+
+    .folder-header:hover {
+      background: #f9fafb;
+    }
+
+    .folder-icon {
+      width: 18px;
+      height: 14px;
+      border-radius: 0 4px 4px 4px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .folder-icon::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 0;
+      width: 7px;
+      height: 5px;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .f-exec .folder-icon  { background: #bdd7f5; }
+    .f-exec .folder-icon::before { background: #bdd7f5; }
+    .f-plan .folder-icon  { background: #a0e2cd; }
+    .f-plan .folder-icon::before { background: #a0e2cd; }
+    .f-fall .folder-icon  { background: #fac97e; }
+    .f-fall .folder-icon::before { background: #fac97e; }
+    .f-rec  .folder-icon  { background: #f5c2d3; }
+    .f-rec  .folder-icon::before  { background: #f5c2d3; }
+    .f-arch .folder-icon  { background: #d4d2c9; }
+    .f-arch .folder-icon::before  { background: #d4d2c9; }
+
+    .folder-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1a1a2e;
+      flex: 1;
+    }
+
+    .folder-meta {
+      font-size: 11.5px;
+      color: #9ca3af;
+    }
+
+    .chevron {
+      font-size: 9px;
+      color: #9ca3af;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .chevron.open {
+      transform: rotate(90deg);
+    }
+
+    .folder-body {
+      border-top: 1px solid #f0f1f3;
+      display: none;
+    }
+
+    .folder-body.open {
+      display: block;
+    }
+
+    .dash-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px 8px 40px;
+      border-bottom: 1px solid #f5f6f8;
+      transition: background 0.1s;
+    }
+
+    .dash-item:last-child {
+      border-bottom: none;
+    }
+
+    .dash-item:hover {
+      background: #fafbfc;
+    }
+
+    .dash-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .f-exec .dash-dot { background: #3a8fdf; }
+    .f-plan .dash-dot { background: #1da87a; }
+    .f-fall .dash-dot { background: #c27d18; }
+    .f-rec  .dash-dot { background: #d4537e; }
+    .f-arch .dash-dot { background: #9ca3af; }
+
+    .dash-name {
+      font-size: 13px;
+      color: #374151;
+      flex: 1;
+    }
+
+    .dash-tag {
+      font-size: 10.5px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .tag-live     { background: #ecf8ee; color: #2d7a3a; }
+    .tag-draft    { background: #fff4e0; color: #9a6200; }
+    .tag-archived { background: #f1f2f4; color: #6b7280; }
+    .tag-review   { background: #e8f2fd; color: #1a62a8; }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dir-header">
+    <svg class="dir-header-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="8" width="24" height="18" rx="3" fill="#e2e5ea"></rect>
+      <path d="M2 11C2 9.34315 3.34315 8 5 8H12L14 5H23C24.6569 5 26 6.34315 26 8V11H2Z" fill="#c5cad3"></path>
+    </svg>
+    <span class="dir-title">Tableau Dashboard Directory</span>
+  </div>
+
+  <div class="folder f-exec">
+    <div class="folder-header" onclick="toggle(this)">
+      <span class="folder-icon"></span>
+      <span class="folder-name">Executive</span>
+      <span class="folder-meta">5 dashboards</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="folder-body">
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">CEO KPI Summary</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Board Reporting Overview</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Revenue &amp; Margin Tracker</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Quarterly Business Review</span><span class="dash-tag tag-review">In review</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">OKR Progress Dashboard</span><span class="dash-tag tag-live">Live</span></div>
+    </div>
+  </div>
+
+  <div class="folder f-plan">
+    <div class="folder-header" onclick="toggle(this)">
+      <span class="folder-icon"></span>
+      <span class="folder-name">Planning and Funnel</span>
+      <span class="folder-meta">5 dashboards</span>
+      <span class="chevron open">▶</span>
+    </div>
+    <div class="folder-body open">
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Pipeline by Stage</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Lead Conversion Rates</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Forecast vs Actuals</span><span class="dash-tag tag-review">In review</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Campaign Attribution</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Annual Headcount Plan</span><span class="dash-tag tag-draft">Draft</span></div>
+    </div>
+  </div>
+
+  <div class="folder f-fall">
+    <div class="folder-header" onclick="toggle(this)">
+      <span class="folder-icon"></span>
+      <span class="folder-name">Fallout</span>
+      <span class="folder-meta">5 dashboards</span>
+      <span class="chevron open">▶</span>
+    </div>
+    <div class="folder-body open">
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Churn Analysis</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Drop-off by Channel</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Lost Deal Breakdown</span><span class="dash-tag tag-review">In review</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Customer Exit Survey Summary</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Attrition Risk Heatmap</span><span class="dash-tag tag-draft">Draft</span></div>
+    </div>
+  </div>
+
+  <div class="folder f-rec">
+    <div class="folder-header" onclick="toggle(this)">
+      <span class="folder-icon"></span>
+      <span class="folder-name">Recruiting</span>
+      <span class="folder-meta">5 dashboards</span>
+      <span class="chevron open">▶</span>
+    </div>
+    <div class="folder-body open">
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Open Roles Tracker</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Time-to-Fill by Department</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Candidate Pipeline</span><span class="dash-tag tag-live">Live</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Offer Acceptance Rate</span><span class="dash-tag tag-review">In review</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Source of Hire Analysis</span><span class="dash-tag tag-draft">Draft</span></div>
+    </div>
+  </div>
+
+  <div class="folder f-arch">
+    <div class="folder-header" onclick="toggle(this)">
+      <span class="folder-icon"></span>
+      <span class="folder-name">Archive</span>
+      <span class="folder-meta">5 dashboards</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="folder-body">
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">2022 Annual Review</span><span class="dash-tag tag-archived">Archived</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Legacy Pipeline Report</span><span class="dash-tag tag-archived">Archived</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Old Conversion Tracker</span><span class="dash-tag tag-archived">Archived</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">Pre-Rebrand Exec Summary</span><span class="dash-tag tag-archived">Archived</span></div>
+      <div class="dash-item"><span class="dash-dot"></span><span class="dash-name">2021 Headcount Model</span><span class="dash-tag tag-archived">Archived</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#2d7a3a;"></span> Live</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#1a62a8;"></span> In review</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#9a6200;"></span> Draft</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#9ca3af;"></span> Archived</div>
+  </div>
+
+  <script>
+    function toggle(header) {
+      const body = header.nextElementSibling;
+      const chevron = header.querySelector('.chevron');
+      body.classList.toggle('open');
+      chevron.classList.toggle('open');
+    }
+  </script>
+
+
+
+</body></html>
