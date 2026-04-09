@@ -33,25 +33,43 @@
       flex-direction: column;
     }
 
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 40px;
+      color: var(--gray-mid); font-size: 13px;
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--gray-light);
+      border-top-color: var(--super-blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      background: #FFF0F0; border: 1px solid #FFCCCC;
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; color: #C0392B;
+      margin-bottom: 12px; display: none;
+    }
+    .error-msg.show { display: block; }
+
     .folder-list { flex: 1; }
 
-    /* Folder */
     .folder {
       border: 1px solid var(--gray-light);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      overflow: visible;
-      background: var(--white);
+      border-radius: 10px; margin-bottom: 8px;
+      overflow: visible; background: var(--white);
       transition: box-shadow 0.15s;
     }
     .folder:hover { box-shadow: 0 2px 12px rgba(29,107,255,0.10); }
 
     .folder-header {
       display: flex; align-items: center; gap: 10px;
-      padding: 11px 14px;
-      cursor: pointer; background: var(--white);
-      user-select: none; border-radius: 10px;
-      transition: background 0.12s;
+      padding: 11px 14px; cursor: pointer;
+      background: var(--white); user-select: none;
+      border-radius: 10px; transition: background 0.12s;
     }
     .folder-header:hover { background: var(--super-blue-light); }
 
@@ -75,28 +93,26 @@
     .f-rec  .folder-icon         { background: #EFF4F8; border: 1px solid #D0DCE8; }
     .f-rec  .folder-icon::before { background: #EFF4F8; }
 
-    /* Open button colors per folder */
-    .f-exec .open-btn { background: #002049; color: #ffffff; border-color: #002049; }
+    .f-exec .open-btn { background: #002049; color: #fff; border-color: #002049; }
     .f-exec .open-btn:hover { background: #00163a; border-color: #00163a; }
-
     .f-fall .open-btn { background: #82F2FE; color: #005B6B; border-color: #82F2FE; }
     .f-fall .open-btn:hover { background: #55E8F9; border-color: #55E8F9; }
-
     .f-plan .open-btn { background: #C3F5FE; color: #005B6B; border-color: #C3F5FE; }
     .f-plan .open-btn:hover { background: #A0EDFB; border-color: #A0EDFB; }
-
     .f-rec  .open-btn { background: #EFF4F8; color: #002049; border-color: #D0DCE8; }
     .f-rec  .open-btn:hover { background: #DDE7F0; border-color: #C0CEDB; }
 
-    .folder-name { font-size: 13.5px; font-weight: 600; color: var(--blueberry-110); flex: 1; }
+    .f-exec .dash-dot { background: #002049; }
+    .f-fall .dash-dot { background: #82F2FE; border: 1px solid #50D8EE; }
+    .f-plan .dash-dot { background: #C3F5FE; border: 1px solid #82D8EE; }
+    .f-rec  .dash-dot { background: #EFF4F8; border: 1px solid #C0CEDB; }
 
+    .folder-name { font-size: 13.5px; font-weight: 600; color: var(--blueberry-110); flex: 1; }
     .folder-count {
       font-size: 11px; font-weight: 600;
       padding: 2px 8px; border-radius: 20px;
-      background: var(--super-blue-light);
-      color: var(--super-blue);
+      background: var(--super-blue-light); color: var(--super-blue);
     }
-
     .chevron {
       font-size: 9px; color: var(--gray-mid);
       transition: transform 0.2s ease;
@@ -110,37 +126,19 @@
     }
     .folder-body.open { display: block; }
 
-    /* Dashboard rows */
-    .dash-item {
-      border-bottom: 1px solid var(--gray-lighter);
-      position: relative;
-    }
+    .dash-item { border-bottom: 1px solid var(--gray-lighter); position: relative; }
     .dash-item:last-child { border-bottom: none; }
 
     .dash-row {
       display: flex; align-items: center; gap: 10px;
       padding: 8px 14px 8px 40px;
-      transition: background 0.1s;
-      cursor: pointer;
+      transition: background 0.1s; cursor: pointer;
     }
     .dash-row:hover { background: var(--super-blue-light); }
 
     .dash-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .f-exec .dash-dot { background: #002049; }
-    .f-fall .dash-dot { background: #82F2FE; border: 1px solid #50D8EE; }
-    .f-plan .dash-dot { background: #C3F5FE; border: 1px solid #82D8EE; }
-    .f-rec  .dash-dot { background: #EFF4F8; border: 1px solid #C0CEDB; }
-
     .dash-name { font-size: 13px; color: #1A1D23; flex: 1; }
-    .dash-name-input {
-      font-size: 13px; color: #1A1D23; flex: 1;
-      border: 1.5px solid var(--gray-light); border-radius: 6px;
-      padding: 3px 7px; outline: none; font-family: inherit;
-      background: var(--white); display: none;
-    }
-    .dash-name-input:focus { border-color: var(--super-blue); }
 
-    /* Open button */
     .open-btn {
       font-size: 11px; padding: 3px 10px;
       border-radius: 20px; border: 1px solid;
@@ -150,7 +148,6 @@
       display: inline-block;
     }
 
-    /* Expand indicator */
     .expand-indicator {
       font-size: 10px; color: var(--gray-mid);
       margin-left: 2px; transition: transform 0.2s;
@@ -165,46 +162,62 @@
     }
     .delete-btn:hover { color: #D93025; }
 
-    /* Description panel */
+    /* Description / edit panel */
     .desc-panel {
       display: none;
-      padding: 8px 14px 10px 52px;
+      padding: 10px 14px 12px 52px;
       background: var(--gray-lighter);
       border-top: 1px solid var(--gray-light);
     }
     .desc-panel.open { display: block; }
 
-    .desc-text {
-      font-size: 12px; color: var(--gray-mid);
-      line-height: 1.5;
-      font-style: italic;
-    }
+    /* View mode */
+    .desc-text { font-size: 12px; color: var(--gray-mid); line-height: 1.5; font-style: italic; }
     .desc-text.empty { color: #BFC3CA; }
 
-    .desc-textarea {
-      font-size: 12px; color: #1A1D23;
-      width: 100%; min-height: 52px;
+    /* Edit mode fields */
+    .edit-fields { display: none; }
+    .edit-fields.show { display: block; }
+
+    .field-label {
+      font-size: 11px; font-weight: 600;
+      color: var(--blueberry-110);
+      margin-bottom: 4px; display: block;
+    }
+
+    .edit-name-input,
+    .edit-desc-textarea,
+    .edit-url-input {
+      width: 100%; font-size: 12px; color: #1A1D23;
       border: 1.5px solid var(--gray-light); border-radius: 6px;
       padding: 6px 8px; outline: none; font-family: inherit;
-      background: var(--white); resize: vertical;
-      display: none; line-height: 1.5;
+      background: var(--white); margin-bottom: 10px;
     }
-    .desc-textarea:focus { border-color: var(--super-blue); }
+    .edit-name-input:focus,
+    .edit-desc-textarea:focus,
+    .edit-url-input:focus { border-color: var(--super-blue); }
 
-    .url-row {
-      display: none;
-      align-items: center; gap: 6px;
-      margin-top: 6px;
+    .edit-desc-textarea { min-height: 60px; resize: vertical; line-height: 1.5; }
+
+    .save-row {
+      display: flex; align-items: center; gap: 10px; margin-top: 2px;
     }
-    .url-row.show { display: flex; }
-    .url-label { font-size: 11px; color: var(--gray-mid); white-space: nowrap; }
-    .url-input {
-      font-size: 11px; color: #1A1D23; flex: 1;
-      border: 1.5px solid var(--gray-light); border-radius: 6px;
-      padding: 3px 7px; outline: none; font-family: inherit;
-      background: var(--white);
+
+    .save-btn {
+      font-size: 12px; padding: 5px 16px; border-radius: 20px;
+      border: none; background: var(--super-blue); color: var(--white);
+      cursor: pointer; font-weight: 600; font-family: inherit;
+      transition: background 0.12s;
     }
-    .url-input:focus { border-color: var(--super-blue); }
+    .save-btn:hover { background: var(--super-blue-dark); }
+    .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .save-feedback {
+      font-size: 11px; color: var(--gray-mid);
+      transition: color 0.3s;
+    }
+    .save-feedback.success { color: #007A3D; }
+    .save-feedback.error   { color: #D93025; }
 
     /* Add row */
     .add-dash-row {
@@ -226,20 +239,17 @@
       cursor: pointer; font-weight: 600; white-space: nowrap; font-family: inherit;
     }
     .add-dash-btn:hover { background: var(--super-blue-dark); }
+    .add-dash-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Edit banner */
     .edit-banner {
-      display: none;
-      background: var(--blueberry-110);
+      display: none; background: var(--blueberry-110);
       color: var(--white); font-size: 12px;
-      padding: 8px 14px; border-radius: 8px;
-      margin-bottom: 14px;
+      padding: 8px 14px; border-radius: 8px; margin-bottom: 14px;
       align-items: center; gap: 8px;
     }
     .edit-banner.show { display: flex; }
     .edit-banner span { flex: 1; }
-    .save-indicator { font-size: 11px; color: rgba(255,255,255,0.45); transition: color 0.3s; }
-    .save-indicator.saved { color: var(--agave-30); }
 
     /* Bottom bar */
     .bottom-bar {
@@ -257,153 +267,100 @@
     }
     .edit-toggle-btn:hover { border-color: var(--super-blue); color: var(--super-blue); }
     .edit-toggle-btn.active { background: var(--super-blue); color: var(--white); border-color: var(--super-blue); }
-
-    .export-btn {
-      font-size: 11px; padding: 4px 12px; border-radius: 20px;
-      border: 1px solid var(--gray-light);
-      background: var(--white); color: var(--gray-mid);
-      cursor: pointer; font-weight: 500; font-family: inherit; transition: all 0.15s;
-      display: none;
-    }
-    .export-btn.show { display: inline-block; }
-    .export-btn:hover { border-color: var(--blueberry-110); color: var(--blueberry-110); }
   </style>
 </head>
 <body>
 
-  <!-- Edit banner -->
   <div class="edit-banner" id="editBanner">
-    <span>Edit mode — rename, add/remove dashboards, edit descriptions and URLs.</span>
-    <span class="save-indicator" id="saveIndicator">Changes saved</span>
+    <span>Edit mode — expand any dashboard, make your changes, then click Save changes.</span>
   </div>
 
-  <div class="folder-list" id="folderList"></div>
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="folder-list" id="folderList">
+    <div class="loading"><div class="spinner"></div>Loading dashboards...</div>
+  </div>
 
   <div class="bottom-bar">
     <span class="dir-meta" id="totalMeta"></span>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <button class="export-btn" id="exportBtn" onclick="exportFile()">Download updated file</button>
-      <button class="edit-toggle-btn" id="editBtn" onclick="handleEditToggle()">Edit</button>
-    </div>
+    <button class="edit-toggle-btn" id="editBtn" onclick="handleEditToggle()">Edit</button>
   </div>
 
 <script>
+  const AT_TOKEN    = 'pat2N8cuaL6YFeGhH.15c835d9c15fcb10a886096d8885d4f048413cc934fbb65ac03ba107eb9e6e98';
+  const BASE_ID     = 'appDk6A9yA2iqNEoG';
+  const TABLE_ID    = 'tblYNRNrsZJDllc0a';
+  const API_BASE    = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`;
   const DEFAULT_URL = 'https://tableau.a.intuit.com/#/site/TalentAcquisition/projects/1772';
 
-  const DEFAULT_DATA = {
-    folders: [
-      { id: 'f-exec', label: 'Executive', dashboards: [
-        { name: 'Executive Summary',      status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Operating Report',       status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Year over Year Report',  status: 'live', url: DEFAULT_URL, desc: '' }
-      ]},
-      { id: 'f-fall', label: 'Fallout', dashboards: [
-        { name: 'Candidate Fallout',   status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Disposition Report',  status: 'live', url: DEFAULT_URL, desc: '' }
-      ]},
-      { id: 'f-plan', label: 'Planning and Funnel', dashboards: [
-        { name: 'Funnel Counts',           status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Location Health',         status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Retail Site Matching',    status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'VOA RTS by Wave Date',    status: 'live', url: DEFAULT_URL, desc: '' }
-      ]},
-      { id: 'f-rec', label: 'Recruiting', dashboards: [
-        { name: 'Active VOAs and Hires Report', status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Hireview Pending Report',      status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Hiring Decision Report',       status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Internal Transfers Report',    status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Local Start Date Report',      status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'NYC Candidates',               status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Progress to Hiring',           status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'QBL Credential Report',        status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Referral Dashboard',           status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Rostering Report',             status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'Sourcing Team Dash',           status: 'live', url: DEFAULT_URL, desc: '' },
-        { name: 'TTL Canada Work Group',        status: 'live', url: DEFAULT_URL, desc: '' }
-      ]}
-    ]
+  const HEADERS = {
+    'Authorization': `Bearer ${AT_TOKEN}`,
+    'Content-Type': 'application/json'
   };
 
-  const STATUS_LABELS  = { live: 'Live', draft: 'Draft', review: 'In review', archived: 'Archived' };
-  const STATUS_CLASSES = { live: 'tag-live', draft: 'tag-draft', review: 'tag-review', archived: 'tag-archived' };
-  const STORAGE_KEY    = 'tableau_dir_data_v4';
+  const FOLDER_ORDER = ['Executive', 'Fallout', 'Planning and Funnel', 'Recruiting'];
+  const FOLDER_IDS   = { 'Executive': 'f-exec', 'Fallout': 'f-fall', 'Planning and Funnel': 'f-plan', 'Recruiting': 'f-rec' };
 
   let editMode = false;
-  let data     = loadData();
+  let records  = [];
 
-  function loadData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return JSON.parse(JSON.stringify(DEFAULT_DATA));
-      const saved = JSON.parse(raw);
-      // Ensure url/desc fields exist on old saves
-      saved.folders.forEach(f => f.dashboards.forEach(d => {
-        if (!d.url)  d.url  = DEFAULT_URL;
-        if (!d.desc) d.desc = '';
-      }));
-      return saved;
-    } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+  // ── API ───────────────────────────────────────────────────────
+  async function fetchRecords() {
+    const res = await fetch(`${API_BASE}?fields[]=Name&fields[]=Description&fields[]=Folder&fields[]=URL`, {
+      headers: HEADERS
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return (await res.json()).records;
   }
 
-  function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    flashSaved(); updateMeta();
+  async function saveRecord(id, fields) {
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: 'PATCH', headers: HEADERS,
+      body: JSON.stringify({ fields })
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
   }
 
-  function flashSaved() {
-    const el = document.getElementById('saveIndicator');
-    el.textContent = 'Saved ✓'; el.classList.add('saved');
-    setTimeout(() => { el.textContent = 'Changes saved'; el.classList.remove('saved'); }, 2000);
+  async function createRecord(name, folder) {
+    const res = await fetch(API_BASE, {
+      method: 'POST', headers: HEADERS,
+      body: JSON.stringify({ records: [{ fields: { Name: name, Folder: folder, URL: DEFAULT_URL, Description: '' } }] })
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return (await res.json()).records[0];
+  }
+
+  async function deleteRecord(id) {
+    const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE', headers: HEADERS });
+    if (!res.ok) throw new Error(`${res.status}`);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
   }
 
   function updateMeta() {
-    const total = data.folders.reduce((sum, f) => sum + f.dashboards.length, 0);
-    document.getElementById('totalMeta').textContent = `${total} dashboards across ${data.folders.length} folders`;
+    document.getElementById('totalMeta').textContent =
+      `${records.length} dashboards across ${FOLDER_ORDER.length} folders`;
   }
 
-  function exportFile() {
-    const currentData = JSON.stringify(data);
-    let src = document.documentElement.outerHTML;
-    src = src.replace(
-      /const DEFAULT_URL[\s\S]*?let data\s*=\s*loadData\(\);/,
-      `const DEFAULT_URL = 'https://tableau.a.intuit.com/#/site/TalentAcquisition/projects/1772';
-
-  const DEFAULT_DATA = ${currentData};
-
-  const STATUS_LABELS  = { live: 'Live', draft: 'Draft', review: 'In review', archived: 'Archived' };
-  const STATUS_CLASSES = { live: 'tag-live', draft: 'tag-draft', review: 'tag-review', archived: 'tag-archived' };
-  const STORAGE_KEY    = 'tableau_dir_data_v4';
-
-  let editMode = false;
-  let data     = loadData();`
-    );
-    const blob = new Blob([src], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'index.html'; a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  function handleEditToggle() {
-    editMode ? disableEditMode() : enableEditMode();
-  }
+  // ── Edit mode ─────────────────────────────────────────────────
+  function handleEditToggle() { editMode ? disableEditMode() : enableEditMode(); }
 
   function enableEditMode() {
     editMode = true;
     document.getElementById('editBtn').textContent = 'Done';
     document.getElementById('editBtn').classList.add('active');
     document.getElementById('editBanner').classList.add('show');
-    document.getElementById('exportBtn').classList.add('show');
-    document.querySelectorAll('.dash-name').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.dash-name-input').forEach(el => el.style.display = 'block');
     document.querySelectorAll('.open-btn').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.expand-indicator').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'block');
     document.querySelectorAll('.add-dash-row').forEach(el => el.classList.add('show'));
-    document.querySelectorAll('.desc-panel').forEach(el => el.classList.add('open'));
-    document.querySelectorAll('.desc-text').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.desc-textarea').forEach(el => el.style.display = 'block');
-    document.querySelectorAll('.url-row').forEach(el => el.classList.add('show'));
+    // Close all desc panels when entering edit mode
+    document.querySelectorAll('.desc-panel').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.edit-fields').forEach(el => el.classList.remove('show'));
   }
 
   function disableEditMode() {
@@ -411,33 +368,39 @@
     document.getElementById('editBtn').textContent = 'Edit';
     document.getElementById('editBtn').classList.remove('active');
     document.getElementById('editBanner').classList.remove('show');
-    document.getElementById('exportBtn').classList.remove('show');
-    document.querySelectorAll('.dash-name').forEach(el => el.style.display = 'block');
-    document.querySelectorAll('.dash-name-input').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.open-btn').forEach(el => el.style.display = 'inline-block');
     document.querySelectorAll('.expand-indicator').forEach(el => el.style.display = 'inline-block');
     document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.add-dash-row').forEach(el => el.classList.remove('show'));
     document.querySelectorAll('.desc-panel').forEach(el => el.classList.remove('open'));
-    document.querySelectorAll('.desc-text').forEach(el => el.style.display = 'block');
-    document.querySelectorAll('.desc-textarea').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.url-row').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.edit-fields').forEach(el => el.classList.remove('show'));
   }
 
+  // ── Render ────────────────────────────────────────────────────
   function render() {
     const container = document.getElementById('folderList');
     container.innerHTML = '';
 
-    data.folders.forEach((folder, fi) => {
+    const grouped = {};
+    FOLDER_ORDER.forEach(f => grouped[f] = []);
+    records.forEach(r => {
+      const folder = r.fields.Folder || 'Recruiting';
+      if (grouped[folder]) grouped[folder].push(r);
+    });
+
+    FOLDER_ORDER.forEach(folderName => {
+      const folderId  = FOLDER_IDS[folderName];
+      const dashboards = grouped[folderName];
+
       const folderEl = document.createElement('div');
-      folderEl.className = `folder ${folder.id}`;
+      folderEl.className = `folder ${folderId}`;
 
       const header = document.createElement('div');
       header.className = 'folder-header';
       header.innerHTML = `
         <span class="folder-icon"></span>
-        <span class="folder-name">${folder.label}</span>
-        <span class="folder-count">${folder.dashboards.length}</span>
+        <span class="folder-name">${folderName}</span>
+        <span class="folder-count">${dashboards.length}</span>
         <span class="chevron open">&#9654;</span>
       `;
       header.addEventListener('click', () => {
@@ -448,7 +411,9 @@
       const body = document.createElement('div');
       body.className = 'folder-body open';
 
-      folder.dashboards.forEach((dash, di) => {
+      dashboards.forEach(record => {
+        const { id, fields } = record;
+
         const item = document.createElement('div');
         item.className = 'dash-item';
 
@@ -461,104 +426,155 @@
 
         const nameSpan = document.createElement('span');
         nameSpan.className = 'dash-name';
-        nameSpan.textContent = dash.name;
-        if (editMode) nameSpan.style.display = 'none';
+        nameSpan.textContent = fields.Name || '';
 
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'dash-name-input';
-        nameInput.value = dash.name;
-        nameInput.style.display = editMode ? 'block' : 'none';
-        nameInput.addEventListener('input', () => {
-          data.folders[fi].dashboards[di].name = nameInput.value;
-          nameSpan.textContent = nameInput.value;
-          saveData();
-        });
-
-
-
-        // Open button
         const openBtn = document.createElement('a');
         openBtn.className = 'open-btn';
         openBtn.textContent = 'Open';
-        openBtn.href = dash.url || DEFAULT_URL;
+        openBtn.href = fields.URL || DEFAULT_URL;
         openBtn.target = '_blank';
         openBtn.rel = 'noopener noreferrer';
         if (editMode) openBtn.style.display = 'none';
 
-        // Expand indicator
         const expandInd = document.createElement('span');
         expandInd.className = 'expand-indicator';
         expandInd.innerHTML = '&#9654;';
         if (editMode) expandInd.style.display = 'none';
 
-        // Delete button
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
         delBtn.textContent = '×';
         delBtn.style.display = editMode ? 'block' : 'none';
-        delBtn.addEventListener('click', (e) => {
+        delBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
-          data.folders[fi].dashboards.splice(di, 1);
-          saveData(); render();
+          if (!confirm(`Remove "${fields.Name}"?`)) return;
+          try {
+            await deleteRecord(id);
+            records = records.filter(r => r.id !== id);
+            updateMeta(); render();
+          } catch(e) { showError('Failed to delete. Please try again.'); }
         });
 
         row.appendChild(dot);
         row.appendChild(nameSpan);
-        row.appendChild(nameInput);
         row.appendChild(openBtn);
         row.appendChild(expandInd);
         row.appendChild(delBtn);
 
-        // ── Description panel ─────────────────────────
+        // ── Description / edit panel ──────────────────
         const descPanel = document.createElement('div');
-        descPanel.className = `desc-panel ${editMode ? 'open' : ''}`;
+        descPanel.className = 'desc-panel';
 
+        // View mode: description text
         const descText = document.createElement('div');
-        descText.className = 'desc-text' + (dash.desc ? '' : ' empty');
-        descText.textContent = dash.desc || 'No description yet. Click Edit to add one.';
-        descText.style.display = editMode ? 'none' : 'block';
+        descText.className = 'desc-text' + (fields.Description ? '' : ' empty');
+        descText.textContent = fields.Description || 'No description yet. Click Edit to add one.';
+
+        // Edit mode: fields + save button
+        const editFields = document.createElement('div');
+        editFields.className = 'edit-fields' + (editMode ? ' show' : '');
+
+        const nameLabel = document.createElement('label');
+        nameLabel.className = 'field-label';
+        nameLabel.textContent = 'Dashboard name';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'edit-name-input';
+        nameInput.value = fields.Name || '';
+
+        const descLabel = document.createElement('label');
+        descLabel.className = 'field-label';
+        descLabel.textContent = 'Description';
 
         const descTextarea = document.createElement('textarea');
-        descTextarea.className = 'desc-textarea';
+        descTextarea.className = 'edit-desc-textarea';
         descTextarea.placeholder = 'Add a description for this dashboard...';
-        descTextarea.value = dash.desc || '';
-        descTextarea.style.display = editMode ? 'block' : 'none';
-        descTextarea.addEventListener('input', () => {
-          data.folders[fi].dashboards[di].desc = descTextarea.value;
-          descText.textContent = descTextarea.value || 'No description yet. Click Edit to add one.';
-          descText.className = 'desc-text' + (descTextarea.value ? '' : ' empty');
-          saveData();
-        });
+        descTextarea.value = fields.Description || '';
 
-        const urlRow = document.createElement('div');
-        urlRow.className = `url-row ${editMode ? 'show' : ''}`;
-        const urlLabel = document.createElement('span');
-        urlLabel.className = 'url-label';
-        urlLabel.textContent = 'URL:';
+        const urlLabel = document.createElement('label');
+        urlLabel.className = 'field-label';
+        urlLabel.textContent = 'Tableau URL';
+
         const urlInput = document.createElement('input');
         urlInput.type = 'text';
-        urlInput.className = 'url-input';
-        urlInput.value = dash.url || DEFAULT_URL;
+        urlInput.className = 'edit-url-input';
+        urlInput.value = fields.URL || DEFAULT_URL;
         urlInput.placeholder = 'https://...';
-        urlInput.addEventListener('input', () => {
-          data.folders[fi].dashboards[di].url = urlInput.value;
-          openBtn.href = urlInput.value;
-          saveData();
+
+        const saveRow = document.createElement('div');
+        saveRow.className = 'save-row';
+
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'save-btn';
+        saveBtn.textContent = 'Save changes';
+
+        const saveFeedback = document.createElement('span');
+        saveFeedback.className = 'save-feedback';
+
+        saveBtn.addEventListener('click', async () => {
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Saving...';
+          saveFeedback.textContent = '';
+          saveFeedback.className = 'save-feedback';
+          try {
+            const updatedFields = {
+              Name: nameInput.value,
+              Description: descTextarea.value,
+              URL: urlInput.value
+            };
+            await saveRecord(id, updatedFields);
+            // Update local record
+            record.fields.Name        = nameInput.value;
+            record.fields.Description = descTextarea.value;
+            record.fields.URL         = urlInput.value;
+            // Update view
+            nameSpan.textContent  = nameInput.value;
+            openBtn.href          = urlInput.value;
+            descText.textContent  = descTextarea.value || 'No description yet. Click Edit to add one.';
+            descText.className    = 'desc-text' + (descTextarea.value ? '' : ' empty');
+            saveFeedback.textContent = 'Saved ✓';
+            saveFeedback.classList.add('success');
+            setTimeout(() => { saveFeedback.textContent = ''; saveFeedback.className = 'save-feedback'; }, 3000);
+          } catch(e) {
+            saveFeedback.textContent = 'Save failed. Please try again.';
+            saveFeedback.classList.add('error');
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save changes';
+          }
         });
-        urlRow.appendChild(urlLabel);
-        urlRow.appendChild(urlInput);
+
+        saveRow.appendChild(saveBtn);
+        saveRow.appendChild(saveFeedback);
+
+        editFields.appendChild(nameLabel);
+        editFields.appendChild(nameInput);
+        editFields.appendChild(descLabel);
+        editFields.appendChild(descTextarea);
+        editFields.appendChild(urlLabel);
+        editFields.appendChild(urlInput);
+        editFields.appendChild(saveRow);
 
         descPanel.appendChild(descText);
-        descPanel.appendChild(descTextarea);
-        descPanel.appendChild(urlRow);
+        descPanel.appendChild(editFields);
 
-        // Toggle description on row click (not in edit mode)
+        // Row click — view mode expands desc, edit mode expands edit fields
         row.addEventListener('click', (e) => {
-          if (editMode) return;
           if (e.target === openBtn || openBtn.contains(e.target)) return;
-          descPanel.classList.toggle('open');
-          expandInd.classList.toggle('open');
+          if (e.target === delBtn) return;
+          const isOpen = descPanel.classList.contains('open');
+          // Close all others first
+          document.querySelectorAll('.desc-panel.open').forEach(p => {
+            p.classList.remove('open');
+            p.querySelector('.edit-fields')?.classList.remove('show');
+          });
+          document.querySelectorAll('.expand-indicator.open').forEach(i => i.classList.remove('open'));
+          if (!isOpen) {
+            descPanel.classList.add('open');
+            if (editMode) editFields.classList.add('show');
+            expandInd.classList.add('open');
+          }
         });
 
         item.appendChild(row);
@@ -576,12 +592,19 @@
       const addBtn = document.createElement('button');
       addBtn.className = 'add-dash-btn';
       addBtn.textContent = '+ Add';
-      addBtn.addEventListener('click', () => {
+      addBtn.addEventListener('click', async () => {
         const name = addInput.value.trim();
         if (!name) return;
-        data.folders[fi].dashboards.push({ name, status: 'live', url: DEFAULT_URL, desc: '' });
-        addInput.value = '';
-        saveData(); render();
+        addBtn.disabled = true; addBtn.textContent = 'Adding...';
+        try {
+          const newRec = await createRecord(name, folderName);
+          records.push(newRec);
+          addInput.value = '';
+          updateMeta(); render();
+        } catch(e) {
+          showError('Failed to add dashboard. Please try again.');
+          addBtn.disabled = false; addBtn.textContent = '+ Add';
+        }
       });
       addInput.addEventListener('keydown', e => { if (e.key === 'Enter') addBtn.click(); });
       addRow.appendChild(addInput);
@@ -596,7 +619,17 @@
     updateMeta();
   }
 
-  render();
+  async function init() {
+    try {
+      records = await fetchRecords();
+      render();
+    } catch(e) {
+      document.getElementById('folderList').innerHTML = '';
+      showError('Could not load dashboards. Check your connection and try refreshing.');
+    }
+  }
+
+  init();
 </script>
 </body>
 </html>
