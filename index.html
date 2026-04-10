@@ -1,1 +1,868 @@
-placeholder
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau Dashboard Directory</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --super-blue: #1D6BFF;
+      --super-blue-dark: #1455CC;
+      --super-blue-light: #E8F0FF;
+      --blueberry-110: #002049;
+      --wintermint-100: #EFF4F8;
+      --white: #FFFFFF;
+      --gray-mid: #6B7280;
+      --gray-light: #E2E5EA;
+      --gray-lighter: #F4F5F7;
+    }
+
+    /* Intuit brand palette — 8 approved colors */
+    :root {
+      --ip-super-blue: #1D6BFF;
+      --ip-blueberry: #002049;
+      --ip-agave-30: #82F2FE;
+      --ip-agave-20: #C3F5FE;
+      --ip-wintermint: #EFF4F8;
+      --ip-tofu: #F4F5F0;
+      --ip-agave-10: #EAFEFF;
+      --ip-white: #FFFFFF;
+    }
+
+    body {
+      font-family: 'Avenir Next', 'Segoe UI', Arial, sans-serif;
+      background: var(--white);
+      color: #1A1D23;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 40px; color: var(--gray-mid); font-size: 13px;
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--gray-light);
+      border-top-color: var(--super-blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      background: #FFF0F0; border: 1px solid #FFCCCC;
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; color: #C0392B;
+      margin-bottom: 12px; display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .folder-list { flex: 1; }
+
+    /* ── Folder ── */
+    .folder {
+      border: 1px solid var(--gray-light);
+      border-radius: 10px; margin-bottom: 8px;
+      overflow: visible; background: var(--white);
+      transition: box-shadow 0.15s;
+    }
+    .folder:hover { box-shadow: 0 2px 12px rgba(29,107,255,0.10); }
+
+    .folder-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px; cursor: pointer;
+      background: var(--white); user-select: none;
+      border-radius: 10px; transition: background 0.12s;
+    }
+    .folder-header:hover { background: var(--super-blue-light); }
+
+    .folder-icon {
+      width: 18px; height: 14px;
+      border-radius: 0 4px 4px 4px;
+      flex-shrink: 0; position: relative;
+    }
+    .folder-icon::before {
+      content: ''; position: absolute;
+      top: -5px; left: 0; width: 7px; height: 5px;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .folder-order-btns { display: none; flex-direction: column; gap: 2px; margin-right: 2px; }
+    .folder-order-btns.show { display: flex; }
+    .order-btn {
+      background: none; border: 1px solid var(--gray-light);
+      border-radius: 3px; cursor: pointer; font-size: 8px;
+      color: var(--gray-mid); padding: 1px 4px; line-height: 1; transition: all 0.1s;
+    }
+    .order-btn:hover { background: var(--super-blue-light); border-color: var(--super-blue); color: var(--super-blue); }
+    .order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .folder-name { font-size: 13.5px; font-weight: 600; color: var(--blueberry-110); flex: 1; }
+    .folder-name-input {
+      font-size: 13.5px; font-weight: 600; color: var(--blueberry-110); flex: 1;
+      border: 1.5px solid var(--super-blue); border-radius: 6px;
+      padding: 2px 8px; outline: none; font-family: inherit;
+      background: var(--white); display: none;
+    }
+
+    /* Intuit palette swatches */
+    .folder-palette {
+      display: none; align-items: center; gap: 4px; margin-right: 4px;
+    }
+    .folder-palette.show { display: flex; }
+    .palette-swatch {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 2px solid transparent;
+      cursor: pointer; transition: all 0.1s; flex-shrink: 0;
+    }
+    .palette-swatch:hover { transform: scale(1.2); }
+    .palette-swatch.selected { border-color: var(--blueberry-110); transform: scale(1.15); }
+    .palette-label { font-size: 10px; color: var(--gray-mid); white-space: nowrap; }
+
+    .folder-edit-btn {
+      font-size: 10px; padding: 2px 8px; border-radius: 20px;
+      border: 1px solid var(--gray-light); background: var(--white);
+      color: var(--gray-mid); cursor: pointer; font-family: inherit;
+      display: none; white-space: nowrap;
+    }
+    .folder-edit-btn.show { display: inline-block; }
+    .folder-edit-btn:hover { border-color: var(--super-blue); color: var(--super-blue); }
+
+    .folder-edit-btns { display: none; gap: 6px; align-items: center; }
+    .folder-edit-btns.show { display: flex; }
+    .folder-save-btn {
+      font-size: 11px; padding: 3px 10px; border-radius: 20px;
+      border: none; background: var(--super-blue); color: var(--white);
+      cursor: pointer; font-weight: 600; font-family: inherit;
+    }
+    .folder-save-btn:hover { background: var(--super-blue-dark); }
+    .folder-cancel-btn {
+      font-size: 11px; padding: 3px 8px; border-radius: 20px;
+      border: 1px solid var(--gray-light); background: var(--white);
+      color: var(--gray-mid); cursor: pointer; font-family: inherit;
+    }
+
+    .folder-count {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--super-blue-light); color: var(--super-blue);
+    }
+    .chevron {
+      font-size: 9px; color: var(--gray-mid);
+      transition: transform 0.2s ease;
+      display: inline-block; margin-left: 4px;
+    }
+    .chevron.open { transform: rotate(90deg); }
+
+    .folder-body {
+      border-top: 1px solid var(--gray-lighter);
+      display: none; border-radius: 0 0 10px 10px; overflow: hidden;
+    }
+    .folder-body.open { display: block; }
+
+    /* ── Dashboard rows ── */
+    .dash-item { border-bottom: 1px solid var(--gray-lighter); position: relative; }
+    .dash-item:last-child { border-bottom: none; }
+
+    .dash-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px 8px 40px;
+      transition: background 0.1s; cursor: pointer;
+    }
+    .dash-row:hover { background: var(--super-blue-light); }
+
+    .dash-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dash-name { font-size: 13px; color: #1A1D23; flex: 1; }
+
+    .open-btn {
+      font-size: 11px; padding: 3px 10px;
+      border-radius: 20px; border: 1px solid;
+      cursor: pointer; font-weight: 600;
+      font-family: inherit; white-space: nowrap;
+      transition: background 0.12s; text-decoration: none;
+      display: inline-block;
+    }
+
+    .expand-indicator {
+      font-size: 10px; color: var(--gray-mid);
+      margin-left: 2px; transition: transform 0.2s; display: inline-block;
+    }
+    .expand-indicator.open { transform: rotate(90deg); }
+
+    .delete-btn {
+      background: none; border: none; color: var(--gray-light);
+      cursor: pointer; font-size: 15px; line-height: 1;
+      padding: 0 2px; display: none; transition: color 0.12s;
+    }
+    .delete-btn:hover { color: #D93025; }
+
+    /* ── Description / Edit panel ── */
+    .desc-panel {
+      display: none;
+      padding: 10px 14px 12px 52px;
+      background: var(--gray-lighter);
+      border-top: 1px solid var(--gray-light);
+    }
+    .desc-panel.open { display: block; }
+
+    /* View mode */
+    .desc-view { display: block; }
+    .desc-text { font-size: 12px; color: var(--gray-mid); line-height: 1.5; font-style: italic; }
+    .desc-text.empty { color: #BFC3CA; }
+
+    /* Edit mode form — hidden until panel opened in edit mode */
+    .edit-form { display: none; }
+    .edit-form.show { display: block; }
+
+    .edit-form label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--gray-mid); margin-bottom: 4px; margin-top: 10px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .edit-form label:first-child { margin-top: 0; }
+    .edit-form textarea {
+      font-size: 12px; color: #1A1D23; width: 100%; min-height: 60px;
+      border: 1.5px solid var(--gray-light); border-radius: 6px;
+      padding: 6px 8px; outline: none; font-family: inherit;
+      background: var(--white); resize: vertical; line-height: 1.5;
+    }
+    .edit-form textarea:focus { border-color: var(--super-blue); }
+    .edit-form input[type="text"] {
+      font-size: 12px; color: #1A1D23; width: 100%;
+      border: 1.5px solid var(--gray-light); border-radius: 6px;
+      padding: 5px 8px; outline: none; font-family: inherit; background: var(--white);
+    }
+    .edit-form input[type="text"]:focus { border-color: var(--super-blue); }
+    .edit-form-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .save-btn {
+      font-size: 12px; padding: 5px 16px; border-radius: 20px;
+      border: none; background: var(--super-blue); color: var(--white);
+      cursor: pointer; font-weight: 600; font-family: inherit;
+    }
+    .save-btn:hover { background: var(--super-blue-dark); }
+    .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .cancel-btn {
+      font-size: 12px; padding: 5px 12px; border-radius: 20px;
+      border: 1px solid var(--gray-light); background: var(--white);
+      color: var(--gray-mid); cursor: pointer; font-family: inherit;
+    }
+    .save-confirm { font-size: 11px; color: #006B7A; font-weight: 500; display: none; }
+    .save-confirm.show { display: block; }
+
+    /* ── Add dashboard row ── */
+    .add-dash-row {
+      display: none; align-items: center; gap: 8px;
+      padding: 8px 14px 8px 40px;
+      border-top: 1px dashed var(--gray-light);
+      background: var(--wintermint-100);
+    }
+    .add-dash-row.show { display: flex; }
+    .add-dash-input {
+      font-size: 13px; color: #1A1D23; flex: 1;
+      border: 1.5px solid var(--gray-light); border-radius: 6px;
+      padding: 4px 8px; outline: none; font-family: inherit; background: var(--white);
+    }
+    .add-dash-input:focus { border-color: var(--super-blue); }
+    .add-dash-btn {
+      font-size: 12px; padding: 4px 14px; border-radius: 20px;
+      border: none; background: var(--super-blue); color: var(--white);
+      cursor: pointer; font-weight: 600; white-space: nowrap; font-family: inherit;
+    }
+    .add-dash-btn:hover { background: var(--super-blue-dark); }
+    .add-dash-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Add folder row ── */
+    .add-folder-row {
+      display: none; align-items: center; gap: 8px;
+      padding: 10px 0; margin-top: 4px;
+    }
+    .add-folder-row.show { display: flex; }
+
+    .add-folder-palette {
+      display: flex; gap: 4px; align-items: center; flex-shrink: 0;
+    }
+    .add-folder-input {
+      font-size: 13px; color: #1A1D23; flex: 1;
+      border: 1.5px solid var(--gray-light); border-radius: 6px;
+      padding: 6px 10px; outline: none; font-family: inherit; background: var(--white);
+    }
+    .add-folder-input:focus { border-color: var(--super-blue); }
+    .add-folder-btn {
+      font-size: 12px; padding: 6px 16px; border-radius: 20px;
+      border: none; background: var(--blueberry-110); color: var(--white);
+      cursor: pointer; font-weight: 600; white-space: nowrap; font-family: inherit;
+    }
+    .add-folder-btn:hover { background: #001535; }
+
+    /* ── Edit banner ── */
+    .edit-banner {
+      display: none;
+      background: var(--blueberry-110); color: var(--white); font-size: 12px;
+      padding: 8px 14px; border-radius: 8px; margin-bottom: 14px;
+      align-items: center; gap: 8px;
+    }
+    .edit-banner.show { display: flex; }
+    .edit-banner span { flex: 1; }
+
+    /* ── Bottom bar ── */
+    .bottom-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 16px; padding-top: 12px;
+      border-top: 1px solid var(--gray-lighter);
+    }
+    .dir-meta { font-size: 11px; color: var(--gray-mid); }
+    .edit-toggle-btn {
+      font-size: 11px; padding: 4px 12px; border-radius: 20px;
+      border: 1px solid var(--gray-light);
+      background: var(--white); color: var(--gray-mid);
+      cursor: pointer; font-weight: 500; font-family: inherit; transition: all 0.15s;
+    }
+    .edit-toggle-btn:hover { border-color: var(--super-blue); color: var(--super-blue); }
+    .edit-toggle-btn.active { background: var(--super-blue); color: var(--white); border-color: var(--super-blue); }
+  </style>
+</head>
+<body>
+
+  <div class="edit-banner" id="editBanner">
+    <span>Edit mode — click any dashboard to edit it. Use ▲▼ and Rename to manage folders.</span>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="folder-list" id="folderList">
+    <div class="loading"><div class="spinner"></div>Loading dashboards...</div>
+  </div>
+
+  <!-- Add folder row -->
+  <div class="add-folder-row" id="addFolderRow">
+    <div class="add-folder-palette" id="addFolderPalette"></div>
+    <input type="text" class="add-folder-input" id="addFolderInput" placeholder="New folder name..." />
+    <button class="add-folder-btn" id="addFolderBtn">+ Add folder</button>
+  </div>
+
+  <div class="bottom-bar">
+    <span class="dir-meta" id="totalMeta"></span>
+    <button class="edit-toggle-btn" id="editBtn" onclick="handleEditToggle()">Edit</button>
+  </div>
+
+<script>
+  const AT_TOKEN    = 'pat2N8cuaL6YFeGhH.15c835d9c15fcb10a886096d8885d4f048413cc934fbb65ac03ba107eb9e6e98';
+  const BASE_ID     = 'appDk6A9yA2iqNEoG';
+  const TABLE_ID    = 'tblYNRNrsZJDllc0a';
+  const API_BASE    = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`;
+  const DEFAULT_URL = 'https://tableau.a.intuit.com/#/site/TalentAcquisition/projects/1772';
+
+  const HEADERS = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
+
+  // ── Intuit brand palette ──────────────────────────────────────
+  const INTUIT_PALETTE = [
+    { name: 'Blueberry',    hex: '#002049' },
+    { name: 'Super Blue',   hex: '#1D6BFF' },
+    { name: 'Agave 30',     hex: '#82F2FE' },
+    { name: 'Agave 20',     hex: '#C3F5FE' },
+    { name: 'Agave 10',     hex: '#EAFEFF' },
+    { name: 'Wintermint',   hex: '#EFF4F8' },
+    { name: 'Tofu',         hex: '#F4F5F0' },
+    { name: 'White',        hex: '#FFFFFF' },
+  ];
+
+  const DEFAULT_COLOR = '#EFF4F8';
+
+  let editMode = false;
+  let records  = [];
+  let folders  = [];
+
+  // ── Color helpers ─────────────────────────────────────────────
+  function isLight(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return (r * 0.299 + g * 0.587 + b * 0.114) > 180;
+  }
+  function darken(hex, amt=30) {
+    return '#' + ['1','3','5'].map(i =>
+      Math.max(0, parseInt(hex.slice(+i, +i+2),16)-amt).toString(16).padStart(2,'0')
+    ).join('');
+  }
+  function btnStyle(color) {
+    const light = isLight(color);
+    return {
+      bg: color,
+      color: light ? darken(color, 80) : '#ffffff',
+      border: light ? darken(color, 20) : color,
+      hover: darken(color, 15)
+    };
+  }
+
+  // ── Palette swatch builder ────────────────────────────────────
+  function buildPalette(container, currentColor, onChange) {
+    container.innerHTML = '';
+    INTUIT_PALETTE.forEach(({ name, hex }) => {
+      const sw = document.createElement('span');
+      sw.className = 'palette-swatch' + (hex === currentColor ? ' selected' : '');
+      sw.title = name;
+      sw.style.cssText = `background:${hex};` +
+        (hex === '#FFFFFF' ? 'border-color:var(--gray-light)!important;' : '');
+      sw.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.querySelectorAll('.palette-swatch').forEach(s => s.classList.remove('selected'));
+        sw.classList.add('selected');
+        onChange(hex);
+      });
+      container.appendChild(sw);
+    });
+  }
+
+  // ── API helpers ───────────────────────────────────────────────
+  async function fetchRecords() {
+    const res = await fetch(
+      `${API_BASE}?fields%5B%5D=Name&fields%5B%5D=Description&fields%5B%5D=Folder&fields%5B%5D=URL&fields%5B%5D=FolderColor`,
+      { headers: HEADERS }
+    );
+    if (!res.ok) throw new Error(res.status);
+    return (await res.json()).records;
+  }
+
+  async function createRecord(name, folder, color) {
+    const res = await fetch(API_BASE, {
+      method: 'POST', headers: HEADERS,
+      body: JSON.stringify({ records: [{ fields: { Name: name, Folder: folder, URL: DEFAULT_URL, Description: '', FolderColor: color } }] })
+    });
+    if (!res.ok) throw new Error(res.status);
+    return (await res.json()).records[0];
+  }
+
+  async function patchRecord(id, fields) {
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: 'PATCH', headers: HEADERS,
+      body: JSON.stringify({ fields })
+    });
+    if (!res.ok) throw new Error(res.status);
+  }
+
+  async function deleteRecord(id) {
+    const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE', headers: HEADERS });
+    if (!res.ok) throw new Error(res.status);
+  }
+
+  async function batchUpdateFolder(oldName, fields) {
+    const affected = records.filter(r => r.fields.Folder === oldName);
+    for (let i = 0; i < affected.length; i += 10) {
+      const batch = affected.slice(i, i+10).map(r => ({ id: r.id, fields }));
+      const res = await fetch(API_BASE, { method: 'PATCH', headers: HEADERS, body: JSON.stringify({ records: batch }) });
+      if (!res.ok) throw new Error(res.status);
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
+
+  function updateMeta() {
+    const total = records.filter(r => r.fields.Name !== '__config__').length;
+    document.getElementById('totalMeta').textContent =
+      `${total} dashboard${total!==1?'s':''} across ${folders.length} folder${folders.length!==1?'s':''}`;
+  }
+
+  function deriveFolders() {
+    const seen = new Map();
+    records.filter(r => r.fields.Name !== '__config__').forEach(r => {
+      const name = r.fields.Folder || 'Uncategorised';
+      if (!seen.has(name)) seen.set(name, r.fields.FolderColor || DEFAULT_COLOR);
+    });
+    const existing = folders.filter(f => seen.has(f.name));
+    const existingNames = new Set(existing.map(f => f.name));
+    const newFolders = [...seen.entries()]
+      .filter(([n]) => !existingNames.has(n))
+      .map(([n,c], i) => ({ name: n, color: c, order: existing.length+i }));
+    folders = [...existing, ...newFolders].sort((a,b) => a.order-b.order);
+    folders.forEach(f => { if (seen.has(f.name)) f.color = seen.get(f.name); });
+    folders.forEach((f,i) => f.order=i);
+  }
+
+  // ── Edit mode toggle ──────────────────────────────────────────
+  function handleEditToggle() { editMode ? disableEditMode() : enableEditMode(); }
+
+  function enableEditMode() {
+    editMode = true;
+    document.getElementById('editBtn').textContent = 'Done';
+    document.getElementById('editBtn').classList.add('active');
+    document.getElementById('editBanner').classList.add('show');
+    document.getElementById('addFolderRow').classList.add('show');
+    document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.add-dash-row').forEach(el => el.classList.add('show'));
+    document.querySelectorAll('.open-btn').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.expand-indicator').forEach(el => el.style.display = 'inline-block');
+    document.querySelectorAll('.folder-order-btns').forEach(el => el.classList.add('show'));
+    document.querySelectorAll('.folder-edit-btn').forEach(el => el.classList.add('show'));
+    // Close all desc panels — user clicks to open them individually
+    document.querySelectorAll('.desc-panel').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.expand-indicator').forEach(el => el.classList.remove('open'));
+  }
+
+  function disableEditMode() {
+    editMode = false;
+    document.getElementById('editBtn').textContent = 'Edit';
+    document.getElementById('editBtn').classList.remove('active');
+    document.getElementById('editBanner').classList.remove('show');
+    document.getElementById('addFolderRow').classList.remove('show');
+    document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.add-dash-row').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.open-btn').forEach(el => el.style.display = 'inline-block');
+    document.querySelectorAll('.folder-order-btns').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.folder-edit-btn').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.folder-name-input').forEach(el => el.style.display='none');
+    document.querySelectorAll('.folder-name').forEach(el => el.style.display='block');
+    document.querySelectorAll('.folder-edit-btns').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.folder-palette').forEach(el => el.classList.remove('show'));
+    // Close all panels when exiting edit mode
+    document.querySelectorAll('.desc-panel').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.expand-indicator').forEach(el => el.classList.remove('open'));
+    // Swap back to view mode in any open panels
+    document.querySelectorAll('.desc-view').forEach(el => el.style.display='block');
+    document.querySelectorAll('.edit-form').forEach(el => el.classList.remove('show'));
+  }
+
+  function moveFolder(fi, direction) {
+    const ti = fi + direction;
+    if (ti < 0 || ti >= folders.length) return;
+    [folders[fi], folders[ti]] = [folders[ti], folders[fi]];
+    folders.forEach((f,i) => f.order=i);
+    render();
+  }
+
+  // ── Render ────────────────────────────────────────────────────
+  function render() {
+    deriveFolders();
+    const container = document.getElementById('folderList');
+    container.innerHTML = '';
+
+    folders.forEach((folder, fi) => {
+      const color = folder.color || DEFAULT_COLOR;
+      const bs = btnStyle(color);
+      const dashboards = records.filter(r =>
+        r.fields.Name !== '__config__' &&
+        (r.fields.Folder||'Uncategorised') === folder.name
+      );
+
+      const folderEl = document.createElement('div');
+      folderEl.className = 'folder';
+
+      // ── Folder header ──────────────────────────────
+      const header = document.createElement('div');
+      header.className = 'folder-header';
+
+      const orderBtns = document.createElement('div');
+      orderBtns.className = `folder-order-btns ${editMode?'show':''}`;
+      ['▲','▼'].forEach((sym, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'order-btn'; btn.textContent = sym;
+        btn.disabled = idx===0 ? fi===0 : fi===folders.length-1;
+        btn.addEventListener('click', e => { e.stopPropagation(); moveFolder(fi, idx===0?-1:1); });
+        orderBtns.appendChild(btn);
+      });
+
+      const icon = document.createElement('span');
+      icon.className = 'folder-icon';
+      icon.style.background = color;
+      if (isLight(color)) icon.style.border = `1px solid ${darken(color,20)}`;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'folder-name';
+      nameSpan.textContent = folder.name;
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text'; nameInput.className = 'folder-name-input';
+      nameInput.value = folder.name; nameInput.style.display = 'none';
+
+      // Intuit palette for folder color
+      const palette = document.createElement('div');
+      palette.className = `folder-palette ${editMode?'show':''}`;
+      let pendingColor = color;
+      buildPalette(palette, color, (hex) => { pendingColor = hex; icon.style.background = hex; });
+
+      const folderEditBtn = document.createElement('button');
+      folderEditBtn.className = `folder-edit-btn ${editMode?'show':''}`;
+      folderEditBtn.textContent = 'Rename';
+
+      const folderEditBtns = document.createElement('div');
+      folderEditBtns.className = 'folder-edit-btns';
+      const folderSaveBtn = document.createElement('button');
+      folderSaveBtn.className = 'folder-save-btn'; folderSaveBtn.textContent = 'Save';
+      const folderCancelBtn = document.createElement('button');
+      folderCancelBtn.className = 'folder-cancel-btn'; folderCancelBtn.textContent = 'Cancel';
+      folderEditBtns.appendChild(folderSaveBtn); folderEditBtns.appendChild(folderCancelBtn);
+
+      folderEditBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        nameSpan.style.display = 'none';
+        nameInput.style.display = 'block';
+        nameInput.value = folder.name;
+        folderEditBtn.style.display = 'none';
+        folderEditBtns.classList.add('show');
+        palette.classList.add('show');
+        pendingColor = color;
+        buildPalette(palette, color, hex => { pendingColor = hex; icon.style.background = hex; });
+        nameInput.focus();
+      });
+
+      folderCancelBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        nameInput.style.display = 'none';
+        nameSpan.style.display = 'block';
+        folderEditBtn.style.display = editMode ? 'inline-block' : 'none';
+        folderEditBtns.classList.remove('show');
+        palette.classList.remove('show');
+        icon.style.background = folder.color || DEFAULT_COLOR;
+      });
+
+      folderSaveBtn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const newName = nameInput.value.trim();
+        if (!newName) { folderCancelBtn.click(); return; }
+        folderSaveBtn.textContent = 'Saving...';
+        try {
+          const fieldsToUpdate = {};
+          if (newName !== folder.name) fieldsToUpdate.Folder = newName;
+          if (pendingColor !== folder.color) fieldsToUpdate.FolderColor = pendingColor;
+          if (Object.keys(fieldsToUpdate).length) {
+            // Build combined update (name + color together)
+            const updateFields = {};
+            if (fieldsToUpdate.Folder) updateFields.Folder = newName;
+            if (fieldsToUpdate.FolderColor) updateFields.FolderColor = pendingColor;
+            await batchUpdateFolder(folder.name, updateFields);
+          }
+          folder.name = newName;
+          folder.color = pendingColor;
+          render();
+        } catch(err) {
+          showError('Failed to save. Please try again.');
+          folderSaveBtn.textContent = 'Save';
+        }
+      });
+
+      const count = document.createElement('span');
+      count.className = 'folder-count'; count.textContent = dashboards.length;
+
+      const chevron = document.createElement('span');
+      chevron.className = 'chevron open'; chevron.innerHTML = '&#9654;';
+
+      header.appendChild(orderBtns); header.appendChild(icon);
+      header.appendChild(nameSpan); header.appendChild(nameInput);
+      header.appendChild(palette);
+      header.appendChild(folderEditBtn); header.appendChild(folderEditBtns);
+      header.appendChild(count); header.appendChild(chevron);
+      header.addEventListener('click', () => {
+        body.classList.toggle('open'); chevron.classList.toggle('open');
+      });
+
+      // ── Folder body ────────────────────────────────
+      const body = document.createElement('div');
+      body.className = 'folder-body open';
+
+      dashboards.forEach(record => {
+        const { id, fields } = record;
+        const item = document.createElement('div');
+        item.className = 'dash-item';
+
+        const row = document.createElement('div');
+        row.className = 'dash-row';
+
+        const dot = document.createElement('span');
+        dot.className = 'dash-dot';
+        dot.style.background = color;
+        if (isLight(color)) dot.style.border = `1px solid ${darken(color,20)}`;
+
+        const nameSpanD = document.createElement('span');
+        nameSpanD.className = 'dash-name';
+        nameSpanD.textContent = fields.Name || '';
+
+        const openBtn = document.createElement('a');
+        openBtn.className = 'open-btn';
+        openBtn.textContent = 'Open';
+        openBtn.href = fields.URL || DEFAULT_URL;
+        openBtn.target = '_blank'; openBtn.rel = 'noopener noreferrer';
+        openBtn.style.cssText = `background:${bs.bg};color:${bs.color};border-color:${bs.border};`;
+        openBtn.addEventListener('mouseover', () => openBtn.style.background = bs.hover);
+        openBtn.addEventListener('mouseout',  () => openBtn.style.background = bs.bg);
+        if (editMode) openBtn.style.display = 'none';
+
+        const expandInd = document.createElement('span');
+        expandInd.className = 'expand-indicator';
+        expandInd.innerHTML = '&#9654;';
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = '×';
+        delBtn.style.display = editMode ? 'block' : 'none';
+        delBtn.addEventListener('click', async e => {
+          e.stopPropagation();
+          if (!confirm(`Remove "${fields.Name}"?`)) return;
+          try {
+            await deleteRecord(id);
+            records = records.filter(r => r.id !== id);
+            updateMeta(); render();
+          } catch(e) { showError('Failed to delete. Please try again.'); }
+        });
+
+        row.appendChild(dot); row.appendChild(nameSpanD);
+        row.appendChild(openBtn); row.appendChild(expandInd); row.appendChild(delBtn);
+
+        // ── Description / Edit panel ───────────────
+        const descPanel = document.createElement('div');
+        descPanel.className = 'desc-panel';
+
+        // View layer
+        const descView = document.createElement('div');
+        descView.className = 'desc-view';
+        const descText = document.createElement('div');
+        descText.className = 'desc-text' + (fields.Description ? '' : ' empty');
+        descText.textContent = fields.Description || 'No description yet. Click Edit to add one.';
+        descView.appendChild(descText);
+
+        // Edit form layer
+        const editForm = document.createElement('div');
+        editForm.className = 'edit-form';
+
+        const nameLabel = document.createElement('label'); nameLabel.textContent = 'Dashboard name';
+        const nameInputD = document.createElement('input'); nameInputD.type='text'; nameInputD.value=fields.Name||'';
+        const descLabel = document.createElement('label'); descLabel.textContent = 'Description';
+        const descTA = document.createElement('textarea');
+        descTA.placeholder='Add a description...'; descTA.value=fields.Description||'';
+        const urlLabel = document.createElement('label'); urlLabel.textContent = 'Tableau URL';
+        const urlInput = document.createElement('input'); urlInput.type='text';
+        urlInput.value=fields.URL||DEFAULT_URL; urlInput.placeholder='https://...';
+
+        const actions = document.createElement('div'); actions.className='edit-form-actions';
+        const saveBtn = document.createElement('button'); saveBtn.className='save-btn'; saveBtn.textContent='Save';
+        const cancelBtn = document.createElement('button'); cancelBtn.className='cancel-btn'; cancelBtn.textContent='Cancel';
+        const saveConfirm = document.createElement('span'); saveConfirm.className='save-confirm'; saveConfirm.textContent='Saved ✓';
+
+        saveBtn.addEventListener('click', async () => {
+          saveBtn.disabled=true; saveBtn.textContent='Saving...';
+          try {
+            await patchRecord(id, { Name: nameInputD.value, Description: descTA.value, URL: urlInput.value });
+            record.fields.Name = nameInputD.value;
+            record.fields.Description = descTA.value;
+            record.fields.URL = urlInput.value;
+            nameSpanD.textContent = nameInputD.value;
+            openBtn.href = urlInput.value;
+            descText.textContent = descTA.value||'No description yet. Click Edit to add one.';
+            descText.className = 'desc-text'+(descTA.value?'':' empty');
+            saveBtn.textContent='Save'; saveBtn.disabled=false;
+            saveConfirm.classList.add('show');
+            setTimeout(()=>saveConfirm.classList.remove('show'),2500);
+          } catch(e) {
+            showError('Failed to save. Please try again.');
+            saveBtn.textContent='Save'; saveBtn.disabled=false;
+          }
+        });
+
+        cancelBtn.addEventListener('click', () => {
+          nameInputD.value=record.fields.Name||'';
+          descTA.value=record.fields.Description||'';
+          urlInput.value=record.fields.URL||DEFAULT_URL;
+          saveConfirm.classList.remove('show');
+        });
+
+        actions.appendChild(saveBtn); actions.appendChild(cancelBtn); actions.appendChild(saveConfirm);
+        editForm.appendChild(nameLabel); editForm.appendChild(nameInputD);
+        editForm.appendChild(descLabel); editForm.appendChild(descTA);
+        editForm.appendChild(urlLabel); editForm.appendChild(urlInput);
+        editForm.appendChild(actions);
+
+        descPanel.appendChild(descView);
+        descPanel.appendChild(editForm);
+
+        // Row click — toggle panel; swap view/edit depending on mode
+        row.addEventListener('click', e => {
+          if (e.target === openBtn || openBtn.contains(e.target)) return;
+          const isOpen = descPanel.classList.toggle('open');
+          expandInd.classList.toggle('open');
+          if (isOpen) {
+            if (editMode) {
+              descView.style.display = 'none';
+              editForm.classList.add('show');
+            } else {
+              descView.style.display = 'block';
+              editForm.classList.remove('show');
+            }
+          }
+        });
+
+        item.appendChild(row); item.appendChild(descPanel);
+        body.appendChild(item);
+      });
+
+      // Add dashboard row
+      const addRow = document.createElement('div');
+      addRow.className = `add-dash-row ${editMode?'show':''}`;
+      const addInput = document.createElement('input');
+      addInput.type='text'; addInput.className='add-dash-input';
+      addInput.placeholder='New dashboard name...';
+      const addBtn = document.createElement('button');
+      addBtn.className='add-dash-btn'; addBtn.textContent='+ Add';
+      addBtn.addEventListener('click', async () => {
+        const name = addInput.value.trim(); if(!name) return;
+        addBtn.disabled=true; addBtn.textContent='Adding...';
+        try {
+          const rec = await createRecord(name, folder.name, color);
+          records.push(rec); addInput.value='';
+          updateMeta(); render();
+        } catch(e) {
+          showError('Failed to add dashboard. Please try again.');
+          addBtn.disabled=false; addBtn.textContent='+ Add';
+        }
+      });
+      addInput.addEventListener('keydown', e => { if(e.key==='Enter') addBtn.click(); });
+      addRow.appendChild(addInput); addRow.appendChild(addBtn);
+      body.appendChild(addRow);
+
+      folderEl.appendChild(header); folderEl.appendChild(body);
+      container.appendChild(folderEl);
+    });
+
+    updateMeta();
+  }
+
+  // ── Add folder palette setup ──────────────────────────────────
+  let newFolderColor = DEFAULT_COLOR;
+  const addPaletteContainer = document.getElementById('addFolderPalette');
+  buildPalette(addPaletteContainer, DEFAULT_COLOR, hex => { newFolderColor = hex; });
+
+  document.getElementById('addFolderBtn').addEventListener('click', () => {
+    const name = document.getElementById('addFolderInput').value.trim();
+    if (!name) return;
+    if (folders.find(f => f.name.toLowerCase()===name.toLowerCase())) {
+      showError('A folder with that name already exists.'); return;
+    }
+    folders.push({ name, color: newFolderColor, order: folders.length });
+    document.getElementById('addFolderInput').value = '';
+    render();
+  });
+  document.getElementById('addFolderInput').addEventListener('keydown', e => {
+    if(e.key==='Enter') document.getElementById('addFolderBtn').click();
+  });
+
+  // ── Init ──────────────────────────────────────────────────────
+  async function init() {
+    try {
+      records = await fetchRecords();
+      deriveFolders();
+      render();
+    } catch(e) {
+      document.getElementById('folderList').innerHTML = '';
+      showError('Could not load dashboards. Check your connection and try refreshing.');
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
