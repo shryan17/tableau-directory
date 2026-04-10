@@ -19,26 +19,11 @@
       --gray-lighter: #F4F5F7;
     }
 
-    /* Intuit brand palette — 8 approved colors */
-    :root {
-      --ip-super-blue: #1D6BFF;
-      --ip-blueberry: #002049;
-      --ip-agave-30: #82F2FE;
-      --ip-agave-20: #C3F5FE;
-      --ip-wintermint: #EFF4F8;
-      --ip-tofu: #F4F5F0;
-      --ip-agave-10: #EAFEFF;
-      --ip-white: #FFFFFF;
-    }
-
     body {
       font-family: 'Avenir Next', 'Segoe UI', Arial, sans-serif;
-      background: var(--white);
-      color: #1A1D23;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background: var(--white); color: #1A1D23;
+      padding: 20px; min-height: 100vh;
+      display: flex; flex-direction: column;
     }
 
     .loading {
@@ -47,10 +32,8 @@
     }
     .spinner {
       width: 16px; height: 16px;
-      border: 2px solid var(--gray-light);
-      border-top-color: var(--super-blue);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+      border: 2px solid var(--gray-light); border-top-color: var(--super-blue);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -64,7 +47,6 @@
 
     .folder-list { flex: 1; }
 
-    /* ── Folder ── */
     .folder {
       border: 1px solid var(--gray-light);
       border-radius: 10px; margin-bottom: 8px;
@@ -92,6 +74,7 @@
       border-radius: 2px 2px 0 0;
     }
 
+    /* Order buttons */
     .folder-order-btns { display: none; flex-direction: column; gap: 2px; margin-right: 2px; }
     .folder-order-btns.show { display: flex; }
     .order-btn {
@@ -110,19 +93,16 @@
       background: var(--white); display: none;
     }
 
-    /* Intuit palette swatches */
-    .folder-palette {
-      display: none; align-items: center; gap: 4px; margin-right: 4px;
-    }
+    /* Palette swatches */
+    .folder-palette { display: none; align-items: center; gap: 4px; }
     .folder-palette.show { display: flex; }
     .palette-swatch {
       width: 16px; height: 16px; border-radius: 4px;
-      border: 2px solid transparent;
-      cursor: pointer; transition: all 0.1s; flex-shrink: 0;
+      border: 2px solid transparent; cursor: pointer;
+      transition: transform 0.1s; flex-shrink: 0;
     }
     .palette-swatch:hover { transform: scale(1.2); }
-    .palette-swatch.selected { border-color: var(--blueberry-110); transform: scale(1.15); }
-    .palette-label { font-size: 10px; color: var(--gray-mid); white-space: nowrap; }
+    .palette-swatch.selected { border-color: var(--blueberry-110) !important; transform: scale(1.15); }
 
     .folder-edit-btn {
       font-size: 10px; padding: 2px 8px; border-radius: 20px;
@@ -154,8 +134,7 @@
     }
     .chevron {
       font-size: 9px; color: var(--gray-mid);
-      transition: transform 0.2s ease;
-      display: inline-block; margin-left: 4px;
+      transition: transform 0.2s ease; display: inline-block; margin-left: 4px;
     }
     .chevron.open { transform: rotate(90deg); }
 
@@ -165,7 +144,6 @@
     }
     .folder-body.open { display: block; }
 
-    /* ── Dashboard rows ── */
     .dash-item { border-bottom: 1px solid var(--gray-lighter); position: relative; }
     .dash-item:last-child { border-bottom: none; }
 
@@ -184,8 +162,7 @@
       border-radius: 20px; border: 1px solid;
       cursor: pointer; font-weight: 600;
       font-family: inherit; white-space: nowrap;
-      transition: background 0.12s; text-decoration: none;
-      display: inline-block;
+      transition: background 0.12s; text-decoration: none; display: inline-block;
     }
 
     .expand-indicator {
@@ -201,24 +178,18 @@
     }
     .delete-btn:hover { color: #D93025; }
 
-    /* ── Description / Edit panel ── */
     .desc-panel {
-      display: none;
-      padding: 10px 14px 12px 52px;
-      background: var(--gray-lighter);
-      border-top: 1px solid var(--gray-light);
+      display: none; padding: 10px 14px 12px 52px;
+      background: var(--gray-lighter); border-top: 1px solid var(--gray-light);
     }
     .desc-panel.open { display: block; }
 
-    /* View mode */
     .desc-view { display: block; }
     .desc-text { font-size: 12px; color: var(--gray-mid); line-height: 1.5; font-style: italic; }
     .desc-text.empty { color: #BFC3CA; }
 
-    /* Edit mode form — hidden until panel opened in edit mode */
     .edit-form { display: none; }
     .edit-form.show { display: block; }
-
     .edit-form label {
       display: block; font-size: 11px; font-weight: 600;
       color: var(--gray-mid); margin-bottom: 4px; margin-top: 10px;
@@ -254,7 +225,6 @@
     .save-confirm { font-size: 11px; color: #006B7A; font-weight: 500; display: none; }
     .save-confirm.show { display: block; }
 
-    /* ── Add dashboard row ── */
     .add-dash-row {
       display: none; align-items: center; gap: 8px;
       padding: 8px 14px 8px 40px;
@@ -276,16 +246,12 @@
     .add-dash-btn:hover { background: var(--super-blue-dark); }
     .add-dash-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* ── Add folder row ── */
     .add-folder-row {
       display: none; align-items: center; gap: 8px;
       padding: 10px 0; margin-top: 4px;
     }
     .add-folder-row.show { display: flex; }
-
-    .add-folder-palette {
-      display: flex; gap: 4px; align-items: center; flex-shrink: 0;
-    }
+    .add-folder-palette { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
     .add-folder-input {
       font-size: 13px; color: #1A1D23; flex: 1;
       border: 1.5px solid var(--gray-light); border-radius: 6px;
@@ -299,7 +265,6 @@
     }
     .add-folder-btn:hover { background: #001535; }
 
-    /* ── Edit banner ── */
     .edit-banner {
       display: none;
       background: var(--blueberry-110); color: var(--white); font-size: 12px;
@@ -309,7 +274,6 @@
     .edit-banner.show { display: flex; }
     .edit-banner span { flex: 1; }
 
-    /* ── Bottom bar ── */
     .bottom-bar {
       display: flex; justify-content: space-between; align-items: center;
       margin-top: 16px; padding-top: 12px;
@@ -331,13 +295,11 @@
   <div class="edit-banner" id="editBanner">
     <span>Edit mode — click any dashboard to edit it. Use ▲▼ and Rename to manage folders.</span>
   </div>
-
   <div class="error-msg" id="errorMsg"></div>
   <div class="folder-list" id="folderList">
     <div class="loading"><div class="spinner"></div>Loading dashboards...</div>
   </div>
 
-  <!-- Add folder row -->
   <div class="add-folder-row" id="addFolderRow">
     <div class="add-folder-palette" id="addFolderPalette"></div>
     <input type="text" class="add-folder-input" id="addFolderInput" placeholder="New folder name..." />
@@ -355,22 +317,21 @@
   const TABLE_ID    = 'tblYNRNrsZJDllc0a';
   const API_BASE    = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`;
   const DEFAULT_URL = 'https://tableau.a.intuit.com/#/site/TalentAcquisition/projects/1772';
+  const DEFAULT_COLOR = '#EFF4F8';
 
   const HEADERS = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
 
   // ── Intuit brand palette ──────────────────────────────────────
   const INTUIT_PALETTE = [
-    { name: 'Blueberry',    hex: '#002049' },
-    { name: 'Super Blue',   hex: '#1D6BFF' },
-    { name: 'Agave 30',     hex: '#82F2FE' },
-    { name: 'Agave 20',     hex: '#C3F5FE' },
-    { name: 'Agave 10',     hex: '#EAFEFF' },
-    { name: 'Wintermint',   hex: '#EFF4F8' },
-    { name: 'Tofu',         hex: '#F4F5F0' },
-    { name: 'White',        hex: '#FFFFFF' },
+    { name: 'Blueberry',  hex: '#002049' },
+    { name: 'Super Blue', hex: '#1D6BFF' },
+    { name: 'Agave 30',   hex: '#82F2FE' },
+    { name: 'Agave 20',   hex: '#C3F5FE' },
+    { name: 'Agave 10',   hex: '#EAFEFF' },
+    { name: 'Wintermint', hex: '#EFF4F8' },
+    { name: 'Tofu',       hex: '#F4F5F0' },
+    { name: 'White',      hex: '#FFFFFF' },
   ];
-
-  const DEFAULT_COLOR = '#EFF4F8';
 
   let editMode = false;
   let records  = [];
@@ -381,33 +342,50 @@
     const r = parseInt(hex.slice(1,3),16);
     const g = parseInt(hex.slice(3,5),16);
     const b = parseInt(hex.slice(5,7),16);
-    return (r * 0.299 + g * 0.587 + b * 0.114) > 180;
+    return (r*0.299 + g*0.587 + b*0.114) > 180;
   }
   function darken(hex, amt=30) {
-    return '#' + ['1','3','5'].map(i =>
-      Math.max(0, parseInt(hex.slice(+i, +i+2),16)-amt).toString(16).padStart(2,'0')
+    return '#' + [1,3,5].map(i =>
+      Math.max(0, parseInt(hex.slice(i,i+2),16)-amt).toString(16).padStart(2,'0')
     ).join('');
   }
-  function btnStyle(color) {
+  function getBtnStyle(color) {
     const light = isLight(color);
     return {
-      bg: color,
-      color: light ? darken(color, 80) : '#ffffff',
-      border: light ? darken(color, 20) : color,
-      hover: darken(color, 15)
+      bg:     color,
+      color:  light ? darken(color,80) : '#ffffff',
+      border: light ? darken(color,20) : color,
+      hover:  darken(color,15)
     };
   }
 
-  // ── Palette swatch builder ────────────────────────────────────
+  // Apply color to a dot element
+  function applyDotColor(dot, color) {
+    dot.style.background = color;
+    dot.style.border = isLight(color) ? `1px solid ${darken(color,20)}` : 'none';
+  }
+
+  // Apply color to an open button element
+  function applyBtnColor(btn, color) {
+    const bs = getBtnStyle(color);
+    btn.style.background   = bs.bg;
+    btn.style.color        = bs.color;
+    btn.style.borderColor  = bs.border;
+    // Store hover color for mouseover
+    btn._hoverColor = bs.hover;
+    btn._baseColor  = bs.bg;
+  }
+
+  // ── Palette builder ───────────────────────────────────────────
   function buildPalette(container, currentColor, onChange) {
     container.innerHTML = '';
     INTUIT_PALETTE.forEach(({ name, hex }) => {
       const sw = document.createElement('span');
       sw.className = 'palette-swatch' + (hex === currentColor ? ' selected' : '');
       sw.title = name;
-      sw.style.cssText = `background:${hex};` +
-        (hex === '#FFFFFF' ? 'border-color:var(--gray-light)!important;' : '');
-      sw.addEventListener('click', (e) => {
+      sw.style.background = hex;
+      if (hex === '#FFFFFF') sw.style.boxShadow = '0 0 0 1px #E2E5EA';
+      sw.addEventListener('click', e => {
         e.stopPropagation();
         container.querySelectorAll('.palette-swatch').forEach(s => s.classList.remove('selected'));
         sw.classList.add('selected');
@@ -438,8 +416,7 @@
 
   async function patchRecord(id, fields) {
     const res = await fetch(`${API_BASE}/${id}`, {
-      method: 'PATCH', headers: HEADERS,
-      body: JSON.stringify({ fields })
+      method: 'PATCH', headers: HEADERS, body: JSON.stringify({ fields })
     });
     if (!res.ok) throw new Error(res.status);
   }
@@ -449,13 +426,15 @@
     if (!res.ok) throw new Error(res.status);
   }
 
-  async function batchUpdateFolder(oldName, fields) {
-    const affected = records.filter(r => r.fields.Folder === oldName);
+  async function batchUpdateFolder(folderName, fields) {
+    const affected = records.filter(r => r.fields.Folder === folderName);
     for (let i = 0; i < affected.length; i += 10) {
-      const batch = affected.slice(i, i+10).map(r => ({ id: r.id, fields }));
+      const batch = affected.slice(i,i+10).map(r => ({ id: r.id, fields }));
       const res = await fetch(API_BASE, { method: 'PATCH', headers: HEADERS, body: JSON.stringify({ records: batch }) });
       if (!res.ok) throw new Error(res.status);
     }
+    // Update local record cache
+    affected.forEach(r => Object.assign(r.fields, fields));
   }
 
   function showError(msg) {
@@ -486,7 +465,7 @@
     folders.forEach((f,i) => f.order=i);
   }
 
-  // ── Edit mode toggle ──────────────────────────────────────────
+  // ── Edit mode ─────────────────────────────────────────────────
   function handleEditToggle() { editMode ? disableEditMode() : enableEditMode(); }
 
   function enableEditMode() {
@@ -498,10 +477,8 @@
     document.querySelectorAll('.delete-btn').forEach(el => el.style.display = 'block');
     document.querySelectorAll('.add-dash-row').forEach(el => el.classList.add('show'));
     document.querySelectorAll('.open-btn').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.expand-indicator').forEach(el => el.style.display = 'inline-block');
     document.querySelectorAll('.folder-order-btns').forEach(el => el.classList.add('show'));
     document.querySelectorAll('.folder-edit-btn').forEach(el => el.classList.add('show'));
-    // Close all desc panels — user clicks to open them individually
     document.querySelectorAll('.desc-panel').forEach(el => el.classList.remove('open'));
     document.querySelectorAll('.expand-indicator').forEach(el => el.classList.remove('open'));
   }
@@ -521,18 +498,16 @@
     document.querySelectorAll('.folder-name').forEach(el => el.style.display='block');
     document.querySelectorAll('.folder-edit-btns').forEach(el => el.classList.remove('show'));
     document.querySelectorAll('.folder-palette').forEach(el => el.classList.remove('show'));
-    // Close all panels when exiting edit mode
     document.querySelectorAll('.desc-panel').forEach(el => el.classList.remove('open'));
     document.querySelectorAll('.expand-indicator').forEach(el => el.classList.remove('open'));
-    // Swap back to view mode in any open panels
     document.querySelectorAll('.desc-view').forEach(el => el.style.display='block');
     document.querySelectorAll('.edit-form').forEach(el => el.classList.remove('show'));
   }
 
-  function moveFolder(fi, direction) {
-    const ti = fi + direction;
-    if (ti < 0 || ti >= folders.length) return;
-    [folders[fi], folders[ti]] = [folders[ti], folders[fi]];
+  function moveFolder(fi, dir) {
+    const ti = fi+dir;
+    if (ti<0 || ti>=folders.length) return;
+    [folders[fi],folders[ti]] = [folders[ti],folders[fi]];
     folders.forEach((f,i) => f.order=i);
     render();
   }
@@ -545,11 +520,22 @@
 
     folders.forEach((folder, fi) => {
       const color = folder.color || DEFAULT_COLOR;
-      const bs = btnStyle(color);
       const dashboards = records.filter(r =>
         r.fields.Name !== '__config__' &&
         (r.fields.Folder||'Uncategorised') === folder.name
       );
+
+      // Collect all dots and open buttons for this folder so we can recolor them live
+      const folderDots = [];
+      const folderBtns = [];
+
+      // Helper: recolor everything in this folder instantly
+      function applyColorToFolder(newColor) {
+        icon.style.background = newColor;
+        icon.style.border = isLight(newColor) ? `1px solid ${darken(newColor,20)}` : 'none';
+        folderDots.forEach(d => applyDotColor(d, newColor));
+        folderBtns.forEach(b => applyBtnColor(b, newColor));
+      }
 
       const folderEl = document.createElement('div');
       folderEl.className = 'folder';
@@ -560,9 +546,9 @@
 
       const orderBtns = document.createElement('div');
       orderBtns.className = `folder-order-btns ${editMode?'show':''}`;
-      ['▲','▼'].forEach((sym, idx) => {
+      ['▲','▼'].forEach((sym,idx) => {
         const btn = document.createElement('button');
-        btn.className = 'order-btn'; btn.textContent = sym;
+        btn.className='order-btn'; btn.textContent=sym;
         btn.disabled = idx===0 ? fi===0 : fi===folders.length-1;
         btn.addEventListener('click', e => { e.stopPropagation(); moveFolder(fi, idx===0?-1:1); });
         orderBtns.appendChild(btn);
@@ -578,14 +564,18 @@
       nameSpan.textContent = folder.name;
 
       const nameInput = document.createElement('input');
-      nameInput.type = 'text'; nameInput.className = 'folder-name-input';
-      nameInput.value = folder.name; nameInput.style.display = 'none';
+      nameInput.type='text'; nameInput.className='folder-name-input';
+      nameInput.value=folder.name; nameInput.style.display='none';
 
-      // Intuit palette for folder color
+      // Palette
       const palette = document.createElement('div');
       palette.className = `folder-palette ${editMode?'show':''}`;
       let pendingColor = color;
-      buildPalette(palette, color, (hex) => { pendingColor = hex; icon.style.background = hex; });
+
+      buildPalette(palette, color, hex => {
+        pendingColor = hex;
+        applyColorToFolder(hex); // ← updates icon + all dots + all buttons instantly
+      });
 
       const folderEditBtn = document.createElement('button');
       folderEditBtn.className = `folder-edit-btn ${editMode?'show':''}`;
@@ -594,64 +584,61 @@
       const folderEditBtns = document.createElement('div');
       folderEditBtns.className = 'folder-edit-btns';
       const folderSaveBtn = document.createElement('button');
-      folderSaveBtn.className = 'folder-save-btn'; folderSaveBtn.textContent = 'Save';
+      folderSaveBtn.className='folder-save-btn'; folderSaveBtn.textContent='Save';
       const folderCancelBtn = document.createElement('button');
-      folderCancelBtn.className = 'folder-cancel-btn'; folderCancelBtn.textContent = 'Cancel';
+      folderCancelBtn.className='folder-cancel-btn'; folderCancelBtn.textContent='Cancel';
       folderEditBtns.appendChild(folderSaveBtn); folderEditBtns.appendChild(folderCancelBtn);
 
       folderEditBtn.addEventListener('click', e => {
         e.stopPropagation();
-        nameSpan.style.display = 'none';
-        nameInput.style.display = 'block';
-        nameInput.value = folder.name;
-        folderEditBtn.style.display = 'none';
+        nameSpan.style.display='none'; nameInput.style.display='block';
+        nameInput.value=folder.name;
+        folderEditBtn.style.display='none';
         folderEditBtns.classList.add('show');
         palette.classList.add('show');
         pendingColor = color;
-        buildPalette(palette, color, hex => { pendingColor = hex; icon.style.background = hex; });
+        buildPalette(palette, color, hex => {
+          pendingColor = hex;
+          applyColorToFolder(hex);
+        });
         nameInput.focus();
       });
 
       folderCancelBtn.addEventListener('click', e => {
         e.stopPropagation();
-        nameInput.style.display = 'none';
-        nameSpan.style.display = 'block';
+        nameInput.style.display='none'; nameSpan.style.display='block';
         folderEditBtn.style.display = editMode ? 'inline-block' : 'none';
         folderEditBtns.classList.remove('show');
         palette.classList.remove('show');
-        icon.style.background = folder.color || DEFAULT_COLOR;
+        // Revert live preview back to saved color
+        applyColorToFolder(folder.color || DEFAULT_COLOR);
+        pendingColor = folder.color || DEFAULT_COLOR;
       });
 
       folderSaveBtn.addEventListener('click', async e => {
         e.stopPropagation();
         const newName = nameInput.value.trim();
         if (!newName) { folderCancelBtn.click(); return; }
-        folderSaveBtn.textContent = 'Saving...';
+        folderSaveBtn.textContent='Saving...';
         try {
-          const fieldsToUpdate = {};
-          if (newName !== folder.name) fieldsToUpdate.Folder = newName;
-          if (pendingColor !== folder.color) fieldsToUpdate.FolderColor = pendingColor;
-          if (Object.keys(fieldsToUpdate).length) {
-            // Build combined update (name + color together)
-            const updateFields = {};
-            if (fieldsToUpdate.Folder) updateFields.Folder = newName;
-            if (fieldsToUpdate.FolderColor) updateFields.FolderColor = pendingColor;
-            await batchUpdateFolder(folder.name, updateFields);
-          }
+          const updateFields = {};
+          if (newName !== folder.name) updateFields.Folder = newName;
+          if (pendingColor !== (folder.color||DEFAULT_COLOR)) updateFields.FolderColor = pendingColor;
+          if (Object.keys(updateFields).length) await batchUpdateFolder(folder.name, updateFields);
           folder.name = newName;
           folder.color = pendingColor;
           render();
         } catch(err) {
           showError('Failed to save. Please try again.');
-          folderSaveBtn.textContent = 'Save';
+          folderSaveBtn.textContent='Save';
         }
       });
 
       const count = document.createElement('span');
-      count.className = 'folder-count'; count.textContent = dashboards.length;
+      count.className='folder-count'; count.textContent=dashboards.length;
 
       const chevron = document.createElement('span');
-      chevron.className = 'chevron open'; chevron.innerHTML = '&#9654;';
+      chevron.className='chevron open'; chevron.innerHTML='&#9654;';
 
       header.appendChild(orderBtns); header.appendChild(icon);
       header.appendChild(nameSpan); header.appendChild(nameInput);
@@ -676,37 +663,35 @@
 
         const dot = document.createElement('span');
         dot.className = 'dash-dot';
-        dot.style.background = color;
-        if (isLight(color)) dot.style.border = `1px solid ${darken(color,20)}`;
+        applyDotColor(dot, color);
+        folderDots.push(dot); // ← register for live recolor
 
         const nameSpanD = document.createElement('span');
-        nameSpanD.className = 'dash-name';
-        nameSpanD.textContent = fields.Name || '';
+        nameSpanD.className='dash-name'; nameSpanD.textContent=fields.Name||'';
 
+        const bs = getBtnStyle(color);
         const openBtn = document.createElement('a');
-        openBtn.className = 'open-btn';
-        openBtn.textContent = 'Open';
-        openBtn.href = fields.URL || DEFAULT_URL;
-        openBtn.target = '_blank'; openBtn.rel = 'noopener noreferrer';
-        openBtn.style.cssText = `background:${bs.bg};color:${bs.color};border-color:${bs.border};`;
-        openBtn.addEventListener('mouseover', () => openBtn.style.background = bs.hover);
-        openBtn.addEventListener('mouseout',  () => openBtn.style.background = bs.bg);
-        if (editMode) openBtn.style.display = 'none';
+        openBtn.className='open-btn'; openBtn.textContent='Open';
+        openBtn.href=fields.URL||DEFAULT_URL;
+        openBtn.target='_blank'; openBtn.rel='noopener noreferrer';
+        applyBtnColor(openBtn, color);
+        openBtn.addEventListener('mouseover', () => openBtn.style.background = openBtn._hoverColor);
+        openBtn.addEventListener('mouseout',  () => openBtn.style.background = openBtn._baseColor);
+        if (editMode) openBtn.style.display='none';
+        folderBtns.push(openBtn); // ← register for live recolor
 
         const expandInd = document.createElement('span');
-        expandInd.className = 'expand-indicator';
-        expandInd.innerHTML = '&#9654;';
+        expandInd.className='expand-indicator'; expandInd.innerHTML='&#9654;';
 
         const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.textContent = '×';
+        delBtn.className='delete-btn'; delBtn.textContent='×';
         delBtn.style.display = editMode ? 'block' : 'none';
         delBtn.addEventListener('click', async e => {
           e.stopPropagation();
           if (!confirm(`Remove "${fields.Name}"?`)) return;
           try {
             await deleteRecord(id);
-            records = records.filter(r => r.id !== id);
+            records = records.filter(r => r.id!==id);
             updateMeta(); render();
           } catch(e) { showError('Failed to delete. Please try again.'); }
         });
@@ -714,28 +699,26 @@
         row.appendChild(dot); row.appendChild(nameSpanD);
         row.appendChild(openBtn); row.appendChild(expandInd); row.appendChild(delBtn);
 
-        // ── Description / Edit panel ───────────────
+        // Desc / edit panel
         const descPanel = document.createElement('div');
         descPanel.className = 'desc-panel';
 
-        // View layer
         const descView = document.createElement('div');
         descView.className = 'desc-view';
         const descText = document.createElement('div');
-        descText.className = 'desc-text' + (fields.Description ? '' : ' empty');
-        descText.textContent = fields.Description || 'No description yet. Click Edit to add one.';
+        descText.className = 'desc-text'+(fields.Description?'':' empty');
+        descText.textContent = fields.Description||'No description yet. Click Edit to add one.';
         descView.appendChild(descText);
 
-        // Edit form layer
         const editForm = document.createElement('div');
         editForm.className = 'edit-form';
 
-        const nameLabel = document.createElement('label'); nameLabel.textContent = 'Dashboard name';
+        const nameLabel = document.createElement('label'); nameLabel.textContent='Dashboard name';
         const nameInputD = document.createElement('input'); nameInputD.type='text'; nameInputD.value=fields.Name||'';
-        const descLabel = document.createElement('label'); descLabel.textContent = 'Description';
+        const descLabel = document.createElement('label'); descLabel.textContent='Description';
         const descTA = document.createElement('textarea');
         descTA.placeholder='Add a description...'; descTA.value=fields.Description||'';
-        const urlLabel = document.createElement('label'); urlLabel.textContent = 'Tableau URL';
+        const urlLabel = document.createElement('label'); urlLabel.textContent='Tableau URL';
         const urlInput = document.createElement('input'); urlInput.type='text';
         urlInput.value=fields.URL||DEFAULT_URL; urlInput.placeholder='https://...';
 
@@ -748,13 +731,10 @@
           saveBtn.disabled=true; saveBtn.textContent='Saving...';
           try {
             await patchRecord(id, { Name: nameInputD.value, Description: descTA.value, URL: urlInput.value });
-            record.fields.Name = nameInputD.value;
-            record.fields.Description = descTA.value;
-            record.fields.URL = urlInput.value;
-            nameSpanD.textContent = nameInputD.value;
-            openBtn.href = urlInput.value;
-            descText.textContent = descTA.value||'No description yet. Click Edit to add one.';
-            descText.className = 'desc-text'+(descTA.value?'':' empty');
+            record.fields.Name=nameInputD.value; record.fields.Description=descTA.value; record.fields.URL=urlInput.value;
+            nameSpanD.textContent=nameInputD.value; openBtn.href=urlInput.value;
+            descText.textContent=descTA.value||'No description yet. Click Edit to add one.';
+            descText.className='desc-text'+(descTA.value?'':' empty');
             saveBtn.textContent='Save'; saveBtn.disabled=false;
             saveConfirm.classList.add('show');
             setTimeout(()=>saveConfirm.classList.remove('show'),2500);
@@ -777,20 +757,18 @@
         editForm.appendChild(urlLabel); editForm.appendChild(urlInput);
         editForm.appendChild(actions);
 
-        descPanel.appendChild(descView);
-        descPanel.appendChild(editForm);
+        descPanel.appendChild(descView); descPanel.appendChild(editForm);
 
-        // Row click — toggle panel; swap view/edit depending on mode
         row.addEventListener('click', e => {
-          if (e.target === openBtn || openBtn.contains(e.target)) return;
+          if (e.target===openBtn || openBtn.contains(e.target)) return;
           const isOpen = descPanel.classList.toggle('open');
           expandInd.classList.toggle('open');
           if (isOpen) {
             if (editMode) {
-              descView.style.display = 'none';
+              descView.style.display='none';
               editForm.classList.add('show');
             } else {
-              descView.style.display = 'block';
+              descView.style.display='block';
               editForm.classList.remove('show');
             }
           }
@@ -809,10 +787,10 @@
       const addBtn = document.createElement('button');
       addBtn.className='add-dash-btn'; addBtn.textContent='+ Add';
       addBtn.addEventListener('click', async () => {
-        const name = addInput.value.trim(); if(!name) return;
+        const name=addInput.value.trim(); if(!name) return;
         addBtn.disabled=true; addBtn.textContent='Adding...';
         try {
-          const rec = await createRecord(name, folder.name, color);
+          const rec=await createRecord(name,folder.name,color);
           records.push(rec); addInput.value='';
           updateMeta(); render();
         } catch(e) {
@@ -820,7 +798,7 @@
           addBtn.disabled=false; addBtn.textContent='+ Add';
         }
       });
-      addInput.addEventListener('keydown', e => { if(e.key==='Enter') addBtn.click(); });
+      addInput.addEventListener('keydown',e=>{if(e.key==='Enter')addBtn.click();});
       addRow.appendChild(addInput); addRow.appendChild(addBtn);
       body.appendChild(addRow);
 
@@ -831,33 +809,31 @@
     updateMeta();
   }
 
-  // ── Add folder palette setup ──────────────────────────────────
+  // ── Add folder palette ────────────────────────────────────────
   let newFolderColor = DEFAULT_COLOR;
-  const addPaletteContainer = document.getElementById('addFolderPalette');
-  buildPalette(addPaletteContainer, DEFAULT_COLOR, hex => { newFolderColor = hex; });
+  buildPalette(document.getElementById('addFolderPalette'), DEFAULT_COLOR, hex => { newFolderColor=hex; });
 
   document.getElementById('addFolderBtn').addEventListener('click', () => {
-    const name = document.getElementById('addFolderInput').value.trim();
-    if (!name) return;
-    if (folders.find(f => f.name.toLowerCase()===name.toLowerCase())) {
+    const name=document.getElementById('addFolderInput').value.trim();
+    if(!name) return;
+    if(folders.find(f=>f.name.toLowerCase()===name.toLowerCase())) {
       showError('A folder with that name already exists.'); return;
     }
-    folders.push({ name, color: newFolderColor, order: folders.length });
-    document.getElementById('addFolderInput').value = '';
+    folders.push({name,color:newFolderColor,order:folders.length});
+    document.getElementById('addFolderInput').value='';
     render();
   });
-  document.getElementById('addFolderInput').addEventListener('keydown', e => {
-    if(e.key==='Enter') document.getElementById('addFolderBtn').click();
+  document.getElementById('addFolderInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter')document.getElementById('addFolderBtn').click();
   });
 
   // ── Init ──────────────────────────────────────────────────────
   async function init() {
     try {
-      records = await fetchRecords();
-      deriveFolders();
-      render();
+      records=await fetchRecords();
+      deriveFolders(); render();
     } catch(e) {
-      document.getElementById('folderList').innerHTML = '';
+      document.getElementById('folderList').innerHTML='';
       showError('Could not load dashboards. Check your connection and try refreshing.');
     }
   }
