@@ -318,6 +318,7 @@
   const API_BASE    = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`;
   const DEFAULT_URL = 'https://tableau.a.intuit.com/#/site/TalentAcquisition/projects/1772';
   const DEFAULT_COLOR = '#EFF4F8';
+  const FOLDER_ORDER_FIELD = 'Order'; // Airtable field name that stores folder order
 
   const HEADERS = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
 
@@ -398,7 +399,7 @@
   // ── API helpers ───────────────────────────────────────────────
   async function fetchRecords() {
     const res = await fetch(
-      `${API_BASE}?fields%5B%5D=Name&fields%5B%5D=Description&fields%5B%5D=Folder&fields%5B%5D=URL&fields%5B%5D=FolderColor`,
+      `${API_BASE}?fields%5B%5D=Name&fields%5B%5D=Description&fields%5B%5D=Folder&fields%5B%5D=URL&fields%5B%5D=FolderColor&fields%5B%5D=Order`,
       { headers: HEADERS }
     );
     if (!res.ok) throw new Error(res.status);
@@ -450,19 +451,30 @@
   }
 
   function deriveFolders() {
-    const seen = new Map();
+    const seen = new Map(); // name → {color, order}
     records.filter(r => r.fields.Name !== '__config__').forEach(r => {
       const name = r.fields.Folder || 'Uncategorised';
-      if (!seen.has(name)) seen.set(name, r.fields.FolderColor || DEFAULT_COLOR);
+      if (!seen.has(name)) {
+        seen.set(name, {
+          color: r.fields.FolderColor || DEFAULT_COLOR,
+          order: r.fields[FOLDER_ORDER_FIELD] ?? Infinity
+        });
+      }
     });
-    const existing = folders.filter(f => seen.has(f.name));
-    const existingNames = new Set(existing.map(f => f.name));
-    const newFolders = [...seen.entries()]
+
+    // Keep ALL existing folders (including empty ones just added by user)
+    // Only append folders from records that aren't already tracked
+    const existingNames = new Set(folders.map(f => f.name));
+    const newFromRecords = [...seen.entries()]
       .filter(([n]) => !existingNames.has(n))
-      .map(([n,c], i) => ({ name: n, color: c, order: existing.length+i }));
-    folders = [...existing, ...newFolders].sort((a,b) => a.order-b.order);
-    folders.forEach(f => { if (seen.has(f.name)) f.color = seen.get(f.name); });
-    folders.forEach((f,i) => f.order=i);
+      .map(([n, meta]) => ({ name: n, color: meta.color, order: meta.order }));
+
+    folders = [...folders, ...newFromRecords].sort((a,b) => a.order - b.order);
+    // Sync colors from Airtable for folders that have records
+    folders.forEach(f => {
+      if (seen.has(f.name)) f.color = seen.get(f.name).color;
+    });
+    folders.forEach((f,i) => f.order = i);
   }
 
   // ── Edit mode ─────────────────────────────────────────────────
@@ -504,12 +516,31 @@
     document.querySelectorAll('.edit-form').forEach(el => el.classList.remove('show'));
   }
 
-  function moveFolder(fi, dir) {
+  async function moveFolder(fi, dir) {
     const ti = fi+dir;
     if (ti<0 || ti>=folders.length) return;
     [folders[fi],folders[ti]] = [folders[ti],folders[fi]];
     folders.forEach((f,i) => f.order=i);
     render();
+    // Persist new order to Airtable
+    try {
+      for (const folder of folders) {
+        const affected = records.filter(r => r.fields.Folder === folder.name);
+        for (let i = 0; i < affected.length; i += 10) {
+          const batch = affected.slice(i,i+10).map(r => ({
+            id: r.id,
+            fields: { [FOLDER_ORDER_FIELD]: folder.order }
+          }));
+          await fetch(API_BASE, {
+            method: 'PATCH', headers: HEADERS,
+            body: JSON.stringify({ records: batch })
+          });
+        }
+        affected.forEach(r => r.fields[FOLDER_ORDER_FIELD] = folder.order);
+      }
+    } catch(e) {
+      showError('Order changed but failed to save — it may reset on refresh.');
+    }
   }
 
   // ── Render ────────────────────────────────────────────────────
