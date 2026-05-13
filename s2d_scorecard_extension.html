@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>S2D Scorecard</title>
+
+  <!-- Tableau Extensions API -->
+  <script src="https://extensions.tableausoftware.com/lib/tableau.extensions.1.latest.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #ffffff;
+      color: #111111;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 12px;
+      color: #999;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #error {
+      display: none;
+      padding: 16px;
+      font-size: 11px;
+      color: #cc0000;
+      background: #fff5f5;
+      border-left: 3px solid #cc0000;
+      margin: 12px;
+    }
+
+    #scorecard {
+      display: none;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    /* Column widths */
+    col.col-label { width: 160px; }
+    col.col-role  { width: calc((100% - 160px) / 7); }
+
+    /* Header row */
+    thead tr {
+      border-bottom: 2px solid #111111;
+    }
+
+    th {
+      padding: 7px 10px;
+      text-align: right;
+      font-family: 'Georgia', serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #111111;
+      white-space: nowrap;
+    }
+
+    th.col-label-header {
+      text-align: left;
+      color: #777777;
+      font-weight: 400;
+      font-size: 9px;
+    }
+
+    /* Body rows */
+    tbody tr {
+      border-bottom: 1px solid #e8e8e8;
+      transition: background 0.1s ease;
+    }
+
+    tbody tr:hover {
+      background: #f7f7f7;
+    }
+
+    /* Stage label cell */
+    td.stage-label {
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #111111;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-right: 1px solid #e8e8e8;
+    }
+
+    /* Data cell */
+    td.data-cell {
+      padding: 6px 10px;
+      text-align: right;
+      vertical-align: top;
+    }
+
+    .cell-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: #111111;
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+    }
+
+    .cell-count.zero {
+      color: #cccccc;
+    }
+
+    .cell-meta {
+      font-size: 9px;
+      font-weight: 400;
+      color: #aaaaaa;
+      line-height: 1.4;
+      letter-spacing: 0.01em;
+      margin-top: 1px;
+    }
+
+    /* Candidates row — slightly heavier */
+    tr.row-candidates td.stage-label {
+      color: #111111;
+    }
+
+    tr.row-candidates td.data-cell .cell-count {
+      color: #111111;
+    }
+
+    /* Separator rows — RTS group */
+    tr.row-separator td {
+      border-top: 1px solid #bbbbbb;
+    }
+
+    #dev-mode-banner {
+      display: none;
+      background: #fffbe6;
+      border-bottom: 1px solid #f0d060;
+      padding: 6px 12px;
+      font-size: 10px;
+      color: #886600;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+
+<div id="dev-mode-banner">⚠ DEV MODE — using sample data. Connect via Tableau to load live data.</div>
+<div id="loading">Loading scorecard…</div>
+<div id="error"></div>
+<div id="scorecard"></div>
+
+<script>
+  // ─── Constants ────────────────────────────────────────────────────────────
+  const ROLES = ['TA', 'TE', 'DE', 'TPA', 'LEAD', 'MGR', 'TOTAL'];
+
+  const FUNNEL_ORDER = [
+    'Candidates',
+    'PS Scheduled (Ever In)',
+    'PS Scheduled (Active)',
+    'PS Completed',
+    'PS Passed',
+    'Interview Sent',
+    'Interview Completed',
+    'Interview Reviewed',
+    'Interview Pass Count',
+    'RVO (Active)',
+    'VOA (Active)',
+    'VOA (Ever In)',
+    'VOD',
+    'Hired (Active)',
+    'Hired (Ever In)',
+    'Ever In RTS',
+    'Ever In RTS (Active)',
+  ];
+
+  // Rows that get a top separator line (visual grouping)
+  const SEPARATOR_ROWS = new Set(['RVO (Active)', 'Ever In RTS']);
+
+  // ─── Sample data for dev/preview mode ────────────────────────────────────
+  const SAMPLE_DATA = {
+    'Candidates':              { TA: 850, TE: 1240, DE: 2090, TPA: 310, LEAD: 95, MGR: 42, TOTAL: 2537, avg: null },
+    'PS Scheduled (Ever In)':  { TA: 612, TE: 890,  DE: 1502, TPA: 224, LEAD: 71, MGR: 31, TOTAL: 1828, avg: null },
+    'PS Scheduled (Active)':   { TA: 88,  TE: 127,  DE: 215,  TPA: 34,  LEAD: 9,  MGR: 4,  TOTAL: 262,  avg: null },
+    'PS Completed':            { TA: 580, TE: 844,  DE: 1424, TPA: 212, LEAD: 68, MGR: 29, TOTAL: 1733, avg: 3.2 },
+    'PS Passed':               { TA: 414, TE: 601,  DE: 1015, TPA: 151, LEAD: 49, MGR: 21, TOTAL: 1236, avg: 2.8 },
+    'Interview Sent':          { TA: 390, TE: 568,  DE: 958,  TPA: 143, LEAD: 46, MGR: 20, TOTAL: 1167, avg: 0.6 },
+    'Interview Completed':     { TA: 355, TE: 517,  DE: 872,  TPA: 130, LEAD: 42, MGR: 18, TOTAL: 1062, avg: 4.1 },
+    'Interview Reviewed':      { TA: 320, TE: 466,  DE: 786,  TPA: 117, LEAD: 38, MGR: 16, TOTAL: 957,  avg: 1.2 },
+    'Interview Pass Count':    { TA: 288, TE: 419,  DE: 707,  TPA: 105, LEAD: 34, MGR: 14, TOTAL: 860,  avg: 0.9 },
+    'RVO (Active)':            { TA: 42,  TE: 61,   DE: 103,  TPA: 15,  LEAD: 5,  MGR: 2,  TOTAL: 125,  avg: null },
+    'VOA (Active)':            { TA: 198, TE: 288,  DE: 486,  TPA: 72,  LEAD: 23, MGR: 10, TOTAL: 591,  avg: null },
+    'VOA (Ever In)':           { TA: 241, TE: 351,  DE: 592,  TPA: 88,  LEAD: 28, MGR: 12, TOTAL: 720,  avg: 0.1 },
+    'VOD':                     { TA: 43,  TE: 63,   DE: 106,  TPA: 16,  LEAD: 5,  MGR: 2,  TOTAL: 129,  avg: null },
+    'Hired (Active)':          { TA: 188, TE: 274,  DE: 462,  TPA: 69,  LEAD: 22, MGR: 9,  TOTAL: 562,  avg: null },
+    'Hired (Ever In)':         { TA: 198, TE: 288,  DE: 486,  TPA: 72,  LEAD: 23, MGR: 10, TOTAL: 591,  avg: 0.6 },
+    'Ever In RTS':             { TA: 14,  TE: 20,   DE: 34,   TPA: 5,   LEAD: 2,  MGR: 1,  TOTAL: 42,   avg: 0.6 },
+    'Ever In RTS (Active)':    { TA: 8,   TE: 12,   DE: 20,   TPA: 3,   LEAD: 1,  MGR: 0,  TOTAL: 24,   avg: null },
+  };
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+  function fmt(n) {
+    if (n === null || n === undefined || isNaN(n)) return '—';
+    return Math.round(n).toLocaleString('en-US');
+  }
+
+  function fmtPct(val, denom) {
+    if (!denom || denom === 0 || val === null || val === undefined) return null;
+    return (val / denom * 100).toFixed(1) + '%';
+  }
+
+  function fmtDays(d) {
+    if (d === null || d === undefined || isNaN(d)) return null;
+    return parseFloat(d).toFixed(1) + 'd';
+  }
+
+  function buildMeta(val, denom, avg) {
+    const pct = fmtPct(val, denom);
+    const days = fmtDays(avg);
+    if (!pct && !days) return null;
+    if (pct && days) return `${pct} | ${days}`;
+    if (pct) return pct;
+    return days;
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+  function renderTable(rowMap) {
+    // rowMap: { 'Candidates': { TA: 207, TE: 0, ..., avg: null }, ... }
+
+    const candidatesRow = rowMap['Candidates'] || {};
+
+    let html = `
+      <table>
+        <colgroup>
+          <col class="col-label">
+          ${ROLES.map(() => '<col class="col-role">').join('')}
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-label-header">Stage</th>
+            ${ROLES.map(r => `<th>${r}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    for (const stage of FUNNEL_ORDER) {
+      const row = rowMap[stage];
+      const isCandidates = stage === 'Candidates';
+      const isSeparator = SEPARATOR_ROWS.has(stage);
+      const rowClass = [
+        isCandidates ? 'row-candidates' : '',
+        isSeparator  ? 'row-separator'  : '',
+      ].filter(Boolean).join(' ');
+
+      html += `<tr class="${rowClass}">`;
+      html += `<td class="stage-label" title="${stage}">${stage}</td>`;
+
+      for (const role of ROLES) {
+        const val = row ? row[role] : null;
+        const denom = isCandidates ? null : (candidatesRow[role] ?? null);
+        const avg = row ? row.avg : null;
+        const meta = isCandidates ? null : buildMeta(val, denom, avg);
+        const isZero = val === 0 || val === null;
+
+        html += `<td class="data-cell">`;
+        html += `<div class="cell-count${isZero ? ' zero' : ''}">${fmt(val)}</div>`;
+        if (meta) html += `<div class="cell-meta">${meta}</div>`;
+        html += `</td>`;
+      }
+
+      html += `</tr>`;
+    }
+
+    html += `</tbody></table>`;
+
+    document.getElementById('scorecard').innerHTML = html;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('scorecard').style.display = 'block';
+  }
+
+  // ─── Parse Tableau data table ─────────────────────────────────────────────
+  function parseDataTable(dataTable) {
+    const cols = dataTable.columns;
+    const colIndex = {};
+    cols.forEach((c, i) => { colIndex[c.fieldName] = i; });
+
+    const required = ['Count Name', ...ROLES, 'Avg Days in Stage'];
+    for (const f of required) {
+      if (colIndex[f] === undefined) {
+        throw new Error(`Field not found in worksheet: "${f}". Check field names match exactly.`);
+      }
+    }
+
+    const rowMap = {};
+
+    for (const dataRow of dataTable.data) {
+      const countName = dataRow[colIndex['Count Name']].value;
+      if (!FUNNEL_ORDER.includes(countName)) continue;
+
+      if (!rowMap[countName]) {
+        rowMap[countName] = { avg: null };
+        for (const r of ROLES) rowMap[countName][r] = 0;
+      }
+
+      for (const role of ROLES) {
+        const v = dataRow[colIndex[role]].value;
+        if (v !== null && !isNaN(v)) {
+          rowMap[countName][role] = (rowMap[countName][role] || 0) + Number(v);
+        }
+      }
+
+      const avgVal = dataRow[colIndex['Avg Days in Stage']].value;
+      if (avgVal !== null && !isNaN(avgVal)) {
+        rowMap[countName].avg = Number(avgVal);
+      }
+    }
+
+    return rowMap;
+  }
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  async function init() {
+    try {
+      await tableau.extensions.initializeAsync();
+
+      const dashboard = tableau.extensions.dashboardContent.dashboard;
+      // Find the S2D Scorecard worksheet
+      const ws = dashboard.worksheets.find(w => w.name === 'S2D Scorecard');
+
+      if (!ws) {
+        throw new Error(
+          'Worksheet "S2D Scorecard" not found on this dashboard. ' +
+          'Make sure the sheet is added to the dashboard and named exactly "S2D Scorecard".'
+        );
+      }
+
+      const dataTable = await ws.getSummaryDataAsync();
+      const rowMap = parseDataTable(dataTable);
+      renderTable(rowMap);
+
+      // Re-render on filter change
+      dashboard.worksheets.forEach(w => {
+        w.addEventListener(tableau.TableauEventType.FilterChanged, async () => {
+          const updated = await ws.getSummaryDataAsync();
+          renderTable(parseDataTable(updated));
+        });
+      });
+
+    } catch (err) {
+      // If not running inside Tableau, fall back to dev/sample mode
+      if (err.message && err.message.includes('Extensions API')) {
+        document.getElementById('dev-mode-banner').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        renderTable(SAMPLE_DATA);
+      } else {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Error: ' + err.message;
+      }
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
