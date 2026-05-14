@@ -342,11 +342,19 @@
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   async function init() {
+    // If the Tableau Extensions API didn't load (e.g. opened in a plain browser),
+    // fall back to dev/sample mode immediately
+    if (typeof tableau === 'undefined' || !tableau.extensions) {
+      document.getElementById('dev-mode-banner').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+      renderTable(SAMPLE_DATA);
+      return;
+    }
+
     try {
       await tableau.extensions.initializeAsync();
 
       const dashboard = tableau.extensions.dashboardContent.dashboard;
-      // Find the S2D Scorecard worksheet
       const ws = dashboard.worksheets.find(w => w.name === 'S2D Scorecard');
 
       if (!ws) {
@@ -369,16 +377,9 @@
       });
 
     } catch (err) {
-      // If not running inside Tableau, fall back to dev/sample mode
-      if (err.message && err.message.includes('Extensions API')) {
-        document.getElementById('dev-mode-banner').style.display = 'block';
-        document.getElementById('loading').style.display = 'none';
-        renderTable(SAMPLE_DATA);
-      } else {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('error').textContent = 'Error: ' + err.message;
-      }
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').textContent = 'Error: ' + err.message;
     }
   }
 
