@@ -11,10 +11,11 @@
       var s = document.createElement('script');
       s.src = 'https://extensions.tableausoftware.com/lib/tableau.extensions.1.latest.js';
       s.onerror = function() {
-        console.warn('Tableau Extensions API script failed to load. Running in dev/sample mode.');
+        dbg('Tableau API script failed to load → dev mode');
         if (typeof window._tableauScriptReady === 'function') window._tableauScriptReady(false);
       };
       s.onload = function() {
+        dbg('Tableau API script loaded → running init');
         if (typeof window._tableauScriptReady === 'function') window._tableauScriptReady(true);
       };
       document.head.appendChild(s);
@@ -194,7 +195,7 @@
 <body>
 
 <div id="dev-mode-banner">⚠ DEV MODE — using sample data. Connect via Tableau to load live data.</div>
-<div id="loading">Loading scorecard…</div>
+<div id="loading">Loading scorecard…<div id="debug" style="font-size:10px;color:#999;margin-top:8px;"></div></div>
 <div id="error"></div>
 <div id="scorecard"></div>
 
@@ -373,6 +374,12 @@
 
   // ─── Init ─────────────────────────────────────────────────────────────────
 
+  function dbg(msg) {
+    var el = document.getElementById('debug');
+    if (el) el.innerHTML += msg + '<br>';
+    console.log('[S2D]', msg);
+  }
+
   function showError(msg) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = 'block';
@@ -386,16 +393,22 @@
   }
 
   function runTableauInit() {
+    dbg('calling initializeAsync...');
     tableau.extensions.initializeAsync().then(function() {
+      dbg('initialized — scanning worksheets...');
       var dashboard = tableau.extensions.dashboardContent.dashboard;
+      var names = dashboard.worksheets.map(function(w) { return w.name; }).join(', ');
+      dbg('sheets found: ' + names);
       var ws = dashboard.worksheets.find(function(w) { return w.name === 'S2D Scorecard'; });
 
       if (!ws) {
-        showError('Worksheet "S2D Scorecard" not found. Make sure the sheet is on this dashboard and named exactly "S2D Scorecard".');
+        showError('Worksheet "S2D Scorecard" not found. Sheets on dashboard: ' + names);
         return;
       }
 
+      dbg('sheet found — fetching data...');
       ws.getSummaryDataAsync().then(function(dataTable) {
+        dbg('data received — rendering...');
         renderTable(parseDataTable(dataTable));
       }).catch(function(err) { showError(err.message); });
 
@@ -412,6 +425,7 @@
 
   // Called by the dynamic script loader's onload/onerror callbacks
   window._tableauScriptReady = function(scriptLoaded) {
+    dbg('scriptLoaded=' + scriptLoaded + ' tableau=' + (typeof tableau) + ' extensions=' + (typeof tableau !== 'undefined' && !!tableau.extensions));
     if (scriptLoaded && typeof tableau !== 'undefined' && tableau.extensions) {
       runTableauInit();
     } else {
